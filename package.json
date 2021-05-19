@@ -1,0 +1,31 @@
+{
+  "name": "staw-backend",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "debug": "./node_modules/.bin/nodemon --delay=1500ms --legacy-watch --exec \"node -r ts-node/register --inspect=0.0.0.0:9999 ./src/index.ts\""
+  },
+  "nodemonConfig": {
+    "ext": "ts, json",
+    "watch": "src/**/*.ts",
+    "ignore": [
+      "node_modules"
+    ],
+    "delay": 1500
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^15.3.0",
+    "@typescript-eslint/eslint-plugin": "^4.24.0",
+    "@typescript-eslint/parser": "^4.24.0",
+    "eslint": "^7.25.0",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4",
+    "typescript-eslint": "0.0.1-alpha.0"
+  }
+}

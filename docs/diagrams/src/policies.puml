@@ -1,0 +1,83 @@
+@startuml
+
+participant Requester
+participant Backend
+participant Apps
+participant Api
+participant Auth
+participant OPA
+participant EventChannel
+
+== api ==
+
+alt requesting resource via api
+
+Requester -> Backend ++: GET /apps/XXX/auth\nAuthorization: token
+Backend -> Auth --++: GET /validate\nAuthorization: token
+Auth -> Auth --
+
+rnote over Auth
+Exchange token to session
+and passback to backend
+endrnote
+
+Auth -> Backend ++: 200 OK SessionId
+rnote over Backend
+backend passes sessionid
+down to downstream services.
+service would request auth
+to retrive session attributes
+endrnote
+
+Backend -> Api --++: GET /apps/XXX/auth\nX-Sesssion-Identity: token
+
+alt verifying identity
+Api -> Auth --++: GET /auth/identity\nX-Sesssion-Identity: token
+Auth --> Auth: Retrive session\nusing token
+Auth -> Api --++: 200 OK Identity
+Api -> OPA --++: POST /policies\nContent-Type: application/json\nBody: Identity
+end
+
+OPA -> OPA: Run identity\nagainst policy
+OPA -> Api --: 200 OK allowed
+Api -> Api ++: Read db for app AppData
+
+' https://oauth2-server.readthedocs.io/en/latest/model/overview.html#client-credentials-grant
+Api -> Auth --: Request client credentials grant\nPOST /oauth/token\nClient-Id: {app-id}
+Auth -> Auth ++: accessToken
+Auth --> Api --: 200 OK 
+rnote over Api
+Auth returns access tokens
+Pass it as request params
+endrnote
+Api --> EventChannel: Dispatch: ApplicationConnectEvent<AppData>
+Api --> Requester --: 302 Redirect: https://ssh.{app-id}.apps.john.example.net?access
+end
+
+
+
+alt authorize request
+
+Requester -> Apps ++: Request authorisation to\nGET /https://ssh.{app-id}.apps.john.example.net?access
+Apps -> Auth --++: Validate token\nGET /auth/token
+rnote over Auth
+Exchange token to session
+and passback to apps
+endrnote
+Apps <- Auth --++: 200 OK session
+Apps -> Apps ++--: Create session cookie\nSet-Cookie: sid
+Apps -> Requester --: 302 Redirect\nSet-Cookie: sid\nLocation: https://ssh.{app-id}.apps.john.example.net
+
+Requester -> Apps: GET https://ssh.{app-id}.apps.john.example.net\nCookie: sid
+Apps -> Auth: Validate cookie\nGET https://{siteId}.example.net/auth/token
+Auth -> Auth: Route by application type\n ssh, https, rdp
+Apps <- Auth: 200 OK
+Apps -> Requester: Serve Application
+
+alt access denied
+Apps <- Auth: 401 Unauthorised
+Apps -> Requester: 302 Redirect https://john.example.net/login?error
+end
+end
+
+@enduml

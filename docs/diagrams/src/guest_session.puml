@@ -1,0 +1,126 @@
+@startuml
+participant Agent
+participant Api
+participant Auth
+participant SessionStore
+participant PKI
+
+== Register Device ==
+
+rnote over Agent
+HTTP/1.1 Protocol
+Headers
+  X-UUID
+  X-Token
+Payload
+  SystemReport
+  CSRBase64
+endrnote
+
+Agent -> Auth: Register new device request
+
+alt success header
+
+Auth -> Auth: Validate header\nvalues
+activate Auth
+rnote over Auth
+  X-UUID format validation
+  X-Token validation
+endrnote
+
+Auth -> PKI: Request new certificate
+deactivate Auth
+
+activate PKI
+rnote over PKI
+  Validate CSR request
+  Generate certificate
+endrnote
+
+Auth <-- PKI: { ca, cert }
+deactivate PKI
+activate Auth
+
+rnote over Auth
+  Creating a device session object
+  Generating X-SID value. Use this
+  value to retrieve a session object
+endrnote
+
+Auth -> SessionStore: Saving session object
+activate Auth #ffbbbb
+rnote over SessionStore
+  Keeping the session object stored 
+  in a session store service (e.g. Redis)
+endrnote
+deactivate Auth
+Agent <-- Auth: 201 OK\n{ ca, cert, session }
+deactivate Auth
+
+else invalid certificate request
+Agent <-- Auth: 400 BadRequest
+
+else invalid header state
+
+Agent <-- Auth: 401 Unauthorized
+end
+
+
+== Validate Guest Session ==
+
+rnote over Agent
+  HTTP/1.1 Protocol
+endrnote
+Agent -> Api: Request resource\nX-UUID, X-SID, X-Token
+
+alt successfull case
+
+Api -> Auth ++: validate 
+
+
+Auth -> SessionStore --++: Retrive session object\nusing X-SID
+rnote over SessionStore
+  Look for a device session
+  object using SID value
+endrnote
+Auth <-- SessionStore --++
+
+Api <-- Auth --
+
+else session object not found
+  Agent <-- Api: 401 Unauthorized
+end
+
+== Validate User Session ==
+
+rnote over Agent
+  HTTP/1.1 Protocol
+endrnote
+
+Agent -> Api: Request resource\nX-UUID, X-SID, X-Token\nAuthorization
+
+alt successfull case
+
+Api -> Auth ++: Validate
+
+Auth -> SessionStore --++ #ffbbbb: Retrive session object\nusing accessToken
+rnote over SessionStore
+  Look for a user session
+  object using AccessToken
+  value
+endrnote
+
+Auth <-- SessionStore --++
+
+
+Api <-- Auth --
+
+else session object not found
+  Agent <-- Api: 401 Unauthorized
+end
+
+@enduml
+' todo
+'  - at what stage issue certificate
+'  - at what stage issue access token
+'  -

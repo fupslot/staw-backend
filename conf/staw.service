@@ -1,0 +1,13 @@
+[Unit]
+Description=api
+After=network.target
+
+[Service]
+Environment=NODE_ENV=production
+Type=simple
+User=ubuntu
+ExecStart=/usr/bin/node /var/staw/src/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,105 @@
+upstream auth_backend {
+    server 127.0.0.1:8000;
+}
+
+upstream api_backend {
+    server 127.0.0.1:9000;
+}
+
+upstream dev_frontend {
+    server 127.0.0.1:3000;
+}
+
+server {
+    listen      80;
+    listen      [::]:80;
+    server_name *.example.net;
+    # root        /var/api/public/build;
+    
+    # security headers
+    include     example.net/security.conf;
+
+    location = /login {
+        proxy_pass http://auth_backend/login;
+        include    example.net/proxy.conf;
+    }
+
+    location = /validate_cookie {
+        internal; # prevent external clients from accessing it directly
+        
+        proxy_pass http://auth_backend/validate_cookie;
+        include    example.net/proxy.conf;
+
+        # todo:
+        # look into caching solution for session
+        # https://www.nginx.com/blog/validating-oauth-2-0-access-tokens-nginx/
+
+        proxy_set_header Host $http_host;
+        
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+    }
+
+    location = /validate_bearer {
+        internal; # prevent external clients from accessing it directly
+
+        proxy_pass http://auth_backend/validate_bearer;
+        include    example.net/proxy.conf;
+
+        # todo:
+        # look into caching solution for tokens
+        # https://www.nginx.com/blog/validating-oauth-2-0-access-tokens-nginx/
+        
+        # be sure to pass the original host header
+        proxy_set_header Host $http_host;
+
+        # Vouch Proxy only acts on the request headers
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+    }
+
+    location /auth/ {
+        proxy_pass http://auth_backend;
+        include    example.net/proxy.conf;
+    }
+
+    # if validate returns `401 not authorized` then forward the request to the error401block
+    error_page 401 = @error401;
+
+    location @error401 {
+        return 302 http://john.example.net/login?url=$scheme://$http_host$request_uri&error=$auth_resp_auth_error;
+    }
+
+    # reverse proxy
+    location /api/ {
+        # restrict methods
+        if ($request_method !~ ^(GET|POST|PUT|DELETE|OPTIONS)$) {
+            return '405';
+        }
+        
+        auth_request /validate_bearer;
+        auth_request_set $auth_resp_auth_identity $upstream_http_x_auth_identity;
+        auth_request_set $auth_resp_auth_error $upstream_http_x_auth_error;
+        
+        proxy_set_header X-Auth-Identity $auth_resp_auth_identity;
+
+        proxy_pass http://api_backend;
+        include    example.net/proxy.conf;
+    }
+    
+    # Reverse proxy to react app dev server
+    location ^~ / {
+        auth_request /validate_cookie;
+        auth_request_set $auth_resp_auth_identity $upstream_http_x_auth_identity;
+        auth_request_set $auth_resp_auth_error $upstream_http_x_auth_error;
+        
+        add_header X-Auth-Identity          $auth_resp_auth_identity always;
+        
+        proxy_pass http://dev_frontend;
+        include    example.net/proxy.conf;
+        
+        # additional config
+    }
+    
+    #include example.net/general.conf;    
+}

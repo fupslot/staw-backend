@@ -1,0 +1,24 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "backend",
+      "address": "api.example.net",
+      "port": 9999,
+      "request": "attach",
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/var/staw",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "pwa-node",
+      "restart": {
+        "delay": 2000,
+        "maxAttempts": 5
+      }
+    }
+  ]
+}

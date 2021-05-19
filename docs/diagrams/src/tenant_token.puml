@@ -1,0 +1,15 @@
+@startuml
+
+participant Api
+participant Auth
+
+Api -> Auth: Generate Token
+Auth -> Auth
+rnote over Auth
+ - Generate random string (CSPRNG)
+ - Store Securilly
+endrnote
+
+Auth -> Api: Base64 Encoded String
+
+@enduml

@@ -1,0 +1,11 @@
+@startuml
+
+participant Browser
+participant Api
+participant Auth
+participant Storage
+
+' todo flow: registering ssh application
+' todo flow: connecting to ssh application
+
+@enduml

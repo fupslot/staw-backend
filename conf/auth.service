@@ -1,0 +1,13 @@
+[Unit]
+Description=auth
+After=network.target
+
+[Service]
+Environment=NODE_ENV=production
+Type=simple
+User=ubuntu
+ExecStart=/usr/bin/node /var/auth/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
