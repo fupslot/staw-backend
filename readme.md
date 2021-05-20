@@ -135,7 +135,7 @@ a remote host.
 
 ```sh
 # mount backend
-sshfs ubuntu@api.example.net:/var/staw /Users/eugenebrodsky/Projects/staw-backend
+sshfs ubuntu@api.example.net:/var/staw-backend /Users/eugenebrodsky/Projects/staw-backend
 
 # mount ui
 sshfs ubuntu@api.example.net:/var/staw-ui /Users/eugenebrodsky/Projects/staw-ui
