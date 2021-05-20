@@ -77,11 +77,13 @@ server {
             return '405';
         }
         
-        auth_request /validate_bearer;
-        auth_request_set $auth_resp_auth_identity $upstream_http_x_auth_identity;
-        auth_request_set $auth_resp_auth_error $upstream_http_x_auth_error;
-        
-        proxy_set_header X-Auth-Identity $auth_resp_auth_identity;
+        # !!!
+        # when authorization is working remove comments
+        #auth_request /validate_bearer;
+        #auth_request_set $auth_resp_auth_identity $upstream_http_x_auth_identity;
+        #auth_request_set $auth_resp_auth_error $upstream_http_x_auth_error;
+
+        #proxy_set_header X-Auth-Identity $auth_resp_auth_identity;
 
         proxy_pass http://api_backend;
         include    example.net/proxy.conf;

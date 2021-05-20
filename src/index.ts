@@ -1,5 +1,5 @@
 import { createLogger } from './pkg/logger'
-
+import { server } from './pkg/server'
 const logger = createLogger()
 
 
@@ -9,7 +9,16 @@ const logger = createLogger()
  * @returns void
  */
 export const main = async(): Promise<void> => {
-  return Promise.resolve();
+  const appPort = 9000
+
+
+  // Initializing http server and bind it to a localhost
+  // 
+  // The general concept is to have the nodejs listening 
+  // requests on localhost and nginx seating on a public interface and 
+  // redirecting requests to nodejs app.
+  const app = server()
+  app.listen(appPort, () => logger.info(`Listening on port ${appPort}`)) // make this configurable via config
 }
 
 main()

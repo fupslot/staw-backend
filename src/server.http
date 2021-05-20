@@ -1,0 +1,6 @@
+### UI Application
+GET http://john.example.net/ 
+
+### API v1
+
+GET http://john.example.net/api/v1

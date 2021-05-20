@@ -17,7 +17,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "@types/express": "^4.17.11",
+    "express": "^4.17.1"
+  },
   "devDependencies": {
     "@types/node": "^15.3.0",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
