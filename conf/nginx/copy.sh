@@ -1,14 +1,17 @@
 ########################
 # WARNING: Run inside VM
 
+if [ ! -d /etc/nginx/example.net ]; then
+  sudo mkdir -p /etc/nginx/example.net
+fi
 
 sudo rm /etc/nginx/sites-enabled/*
 sudo rm /etc/nginx/sites-available/*
 sudo rm /etc/nginx/example.net/*
 
-sudo cp -R /var/staw/conf/nginx/example.net/* /etc/nginx/example.net/
-sudo cp -R /var/staw/conf/nginx/sites-available/* /etc/nginx/sites-available/
-sudo cp /var/staw/conf/nginx/nginx.conf /etc/nginx/nginx.conf
+sudo cp -R /var/staw-backend/conf/nginx/example.net/* /etc/nginx/example.net/
+sudo cp -R /var/staw-backend/conf/nginx/sites-available/* /etc/nginx/sites-available/
+sudo cp /var/staw-backend/conf/nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Link example.net
 sudo ln -s /etc/nginx/sites-available/debug.example.net /etc/nginx/sites-enabled/debug.example.net
