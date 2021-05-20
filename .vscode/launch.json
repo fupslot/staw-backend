@@ -10,7 +10,7 @@
       "port": 9999,
       "request": "attach",
       "localRoot": "${workspaceFolder}",
-      "remoteRoot": "/var/staw",
+      "remoteRoot": "/var/staw-backend",
       "skipFiles": [
         "<node_internals>/**"
       ],
