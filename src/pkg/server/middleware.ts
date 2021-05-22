@@ -1,20 +1,27 @@
 import { format as fmt } from "util";
 import { Request, RequestHandler } from "express";
+import { IAppContext } from "pkg/context";
+import { wrap } from "../../internal/util";
 
-export function siteId(): RequestHandler {
-  return (req: Request, res, next) => {
+export function siteId(ctx: IAppContext): RequestHandler {
+  return wrap(async (req: Request, res, next) => {
     const hostname = req.hostname;
     const parts = req.hostname.split(".");
 
     if (parts.length < 3) {
-      return next(
-        new Error(`Hostname ${hostname}. Expecting 3rd-level domain name`)
-      );
+      throw new Error(`Hostname ${hostname}. Expecting 3rd-level domain name`);
     }
 
+    const siteId = parts.shift() || null;
     req.context = { reqId: fmt("%s", Date.now()) };
-    req.context.siteId = parts.shift() || null;
+
+    if (typeof siteId === "string") {
+      const data = await ctx.cache.site.get(siteId);
+      if (data) {
+        req.context.site = JSON.parse(data);
+      }
+    }
 
     next();
-  };
+  });
 }

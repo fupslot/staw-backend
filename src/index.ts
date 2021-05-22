@@ -1,7 +1,8 @@
 import { createLogger } from "./pkg/logger";
 import { createServer } from "./pkg/server";
-import { createContext } from "./pkg/context";
+import { createContext, IAppCache } from "./pkg/context";
 import { createStore } from "./pkg/store";
+import { createCache, ICacheType } from "./pkg/cache";
 
 const logger = createLogger();
 
@@ -12,12 +13,15 @@ const logger = createLogger();
  */
 export const main = async (): Promise<void> => {
   const store = await createStore();
+  const cache: IAppCache = {
+    site: createCache({ db: ICacheType.Site }),
+  };
 
   // Initializing application context object
   //
   // The context carries references to modules and data structures
   // across API boundaries
-  const context = await createContext({ store });
+  const context = await createContext({ store, cache });
 
   // Initializing http server and bind it to a localhost
   //

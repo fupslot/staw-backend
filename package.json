@@ -20,8 +20,11 @@
   "dependencies": {
     "@types/express": "^4.17.11",
     "@types/mongodb": "^3.6.16",
+    "@types/redis": "^2.8.28",
     "express": "^4.17.1",
-    "mongodb": "^3.6.8"
+    "mongodb": "^3.6.8",
+    "redis": "^3.1.2",
+    "redis-commands": "^1.7.0"
   },
   "devDependencies": {
     "@types/node": "^15.3.0",
