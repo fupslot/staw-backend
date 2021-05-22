@@ -1,6 +1,11 @@
 ### UI Application
-GET http://john.example.net/ 
+GET / 
+Host: john.example.net
+
 
 ### API v1
 
-GET http://john.example.net/api/v1
+
+# Healthcheck
+GET /api/v1
+Host: john.example.net
