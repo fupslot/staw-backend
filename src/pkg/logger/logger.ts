@@ -1,3 +1,3 @@
 export const createLogger = (): Console => {
-  return console
-}
+  return console;
+};
