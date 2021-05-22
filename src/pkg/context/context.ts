@@ -1,17 +1,24 @@
-import * as os from 'os'
+import * as os from "os";
+import { Db } from "mongodb";
 
 export interface IAppContext {
-  pid: number
-  hostname: string
+  pid: number;
+  hostname: string;
+  store: Db;
 }
 
-export function createContext(): Promise<IAppContext> {
+export interface IContextProviders {
+  store: Db;
+}
 
+export function createContext(opts: IContextProviders): Promise<IAppContext> {
   const context: IAppContext = {
     pid: process.pid,
 
-    hostname: os.hostname()
-  }
+    hostname: os.hostname(),
 
-  return Promise.resolve(context)
+    store: opts.store,
+  };
+
+  return Promise.resolve(context);
 }

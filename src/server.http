@@ -9,3 +9,9 @@ Host: john.example.net
 # Healthcheck
 GET /api/v1
 Host: john.example.net
+
+
+###
+
+GET /api/v1/profile
+Host: john.example.net
