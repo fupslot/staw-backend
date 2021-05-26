@@ -1,6 +1,6 @@
 import express from "express";
 import { IAppContext } from "../context";
-import { createProfileRouter } from "../profile";
+import { createApiRoute } from "./routes";
 import { siteId } from "./middleware";
 import errorHandler from "./errorHandler";
 
@@ -19,7 +19,7 @@ export const createServer = (context: IAppContext): HTTPServerWithContext => {
   app.use(siteId(context));
 
   app.get("/api/v1", (req, res) => res.sendStatus(200)); // simple healthcheck
-  app.use("/api/v1/profile", createProfileRouter(context));
+  app.use("/api/v1", createApiRoute(context));
 
   app.use(errorHandler());
 

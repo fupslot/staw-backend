@@ -1,5 +1,6 @@
-import yup from "yup";
-import ObjectSchema, { ObjectShape } from "yup/lib/object";
+import Boom from "@hapi/boom";
+import { string, object } from "yup";
+import ObjectSchema, { AssertsShape, ObjectShape } from "yup/lib/object";
 
 export const rule = {
   NCHAR: /^[\u002D|\u002E|\u005F|\w]+$/,
@@ -19,37 +20,48 @@ export const rule = {
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const uchar = yup.string().matches(rule.UNICODECHARNOCRLF, "");
+export const uchar = string().matches(rule.UNICODECHARNOCRLF, "");
 
 /**
  * Validate if a value matches against the printable set of unicode characters.
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const vschar = yup.string().matches(rule.VSCHAR);
+export const vschar = string().matches(rule.VSCHAR);
 
 /**
  * Validate if a value matches a unicode character.
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const nchar = yup.string().matches(rule.NCHAR);
+export const nchar = string().matches(rule.NCHAR);
 
 /**
  * Validate if a value matches a unicode character, including exclamation marks.
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const nqchar = yup.string().matches(rule.NQCHAR);
+export const nqchar = string().matches(rule.NQCHAR);
 
 /**
  * Validate if a value matches a unicode character, including exclamation marks and spaces.
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const nqschar = yup.string().matches(rule.NQSCHAR);
+export const nqschar = string().matches(rule.NQSCHAR);
 
-export const alphanum = yup.string().matches(rule.ALPHANUM);
+export const alphanum = string().matches(rule.ALPHANUM);
+
+export const validate = async <T>(
+  schema: ObjectSchema<ObjectShape>,
+  data: T
+): Promise<AssertsShape<ObjectShape>> => {
+  try {
+    return await schema.validate(data);
+  } catch (error) {
+    throw Boom.badRequest(error, error.params);
+  }
+};
 
 /**
  * Schemas
@@ -57,19 +69,12 @@ export const alphanum = yup.string().matches(rule.ALPHANUM);
  * @see https://github.com/jquense/yup
  */
 
-export const submitProfileSchema = yup.object().shape({
+export const submitProfileSchema = object().shape({
   first_name: alphanum.required(),
   last_name: alphanum.required(),
-  email: yup.string().email().required(),
+  email: string().email().required(),
 });
 
-// validate(submitProfileSchema, {});
-
-export const validate = async <T>(
-  schema: ObjectSchema<ObjectShape>,
-  data: T
-): Promise<T | Record<string, unknown> | null> => {
-  const result = await schema.validate(data);
-
-  return result;
-};
+export const submitSignInSchema = object().shape({
+  email: string().email().required(),
+});

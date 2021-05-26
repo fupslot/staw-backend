@@ -12,6 +12,10 @@ Host: john.example.net
 
 
 ###
-
-GET /api/v1/profile
+POST /api/v1/sign-in
 Host: john.example.net
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.net"
+}
