@@ -52,12 +52,16 @@ export const nqschar = string().matches(rule.NQSCHAR);
 
 export const alphanum = string().matches(rule.ALPHANUM);
 
+type ValidationResult<T> = {
+  [P in keyof T]: T[P];
+};
+
 export const validate = async <T>(
   schema: ObjectSchema<ObjectShape>,
   data: T
-): Promise<AssertsShape<ObjectShape>> => {
+): Promise<ValidationResult<T>> => {
   try {
-    return await schema.validate(data);
+    return (await schema.validate(data)) as T;
   } catch (error) {
     throw Boom.badRequest(error, error.params);
   }
@@ -75,6 +79,7 @@ export const submitProfileSchema = object().shape({
   email: string().email().required(),
 });
 
-export const submitSignInSchema = object().shape({
+export const PostSignInSchema = object().shape({
+  siteId: string().required(),
   email: string().email().required(),
 });

@@ -8,6 +8,7 @@ export function siteId(ctx: IAppContext): RequestHandler {
     const hostname = req.hostname;
     const parts = req.hostname.split(".");
 
+    // @see http://expressjs.com/en/4x/api.html#req.subdomains
     if (parts.length < 3) {
       throw new Error(`Hostname ${hostname}. Expecting 3rd-level domain name`);
     }

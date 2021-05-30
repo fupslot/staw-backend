@@ -1,7 +1,7 @@
 import { createLogger } from "./pkg/logger";
 import { createServer } from "./pkg/server";
 import { createContext, IAppCache } from "./pkg/context";
-import { createStore } from "./pkg/store";
+import { createAppStore } from "./pkg/store";
 import { createCache, ICacheType } from "./pkg/cache";
 
 const logger = createLogger();
@@ -12,7 +12,7 @@ const logger = createLogger();
  * @returns void
  */
 export const main = async (): Promise<void> => {
-  const store = await createStore();
+  const store = await createAppStore();
   const cache: IAppCache = {
     site: createCache({ db: ICacheType.Site }),
   };

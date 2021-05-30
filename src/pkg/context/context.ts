@@ -1,5 +1,5 @@
 import * as os from "os";
-import { Db } from "mongodb";
+import { IAppStore } from "../store";
 import { RedisAsync } from "../cache";
 
 export interface IAppCache {
@@ -9,12 +9,12 @@ export interface IAppCache {
 export interface IAppContext {
   pid: number;
   hostname: string;
-  store: Db;
+  store: IAppStore;
   cache: IAppCache;
 }
 
 export interface IAppContextProviders {
-  store: Db;
+  store: IAppStore;
   cache: IAppCache;
 }
 
