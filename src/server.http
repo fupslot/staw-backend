@@ -13,9 +13,10 @@ Host: john.example.net
 
 ###
 POST /api/v1/sign-in
-Host: john.example.net
+Host: john3.example.net
 Content-Type: application/json
 
 {
+  "siteId": "john3",
   "email": "john.doe@example.net"
 }

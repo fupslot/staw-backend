@@ -5,22 +5,30 @@ import {
   Collection,
   ObjectID,
 } from "mongodb";
-import config from "../config";
+import { config } from "../config";
+
+type SiteId = string | null;
 
 interface UniqueKey {
   id?: ObjectID;
 }
 
 export interface ISiteModel extends UniqueKey {
-  siteId: string;
+  siteId: SiteId;
   email: string;
 }
 
 export interface IProfileModel extends UniqueKey {
   name: string;
   email: string;
-  siteId: string;
+  siteId: SiteId;
   createdAt: Date;
+}
+
+export interface IInviteModel extends UniqueKey {
+  code: string;
+  siteId: SiteId;
+  expireAt: Date;
 }
 
 export async function createStore(): Promise<Db> {
@@ -42,6 +50,8 @@ export interface IAppStore {
   site: Collection<ISiteModel>;
 
   profile: Collection<IProfileModel>;
+
+  invite: Collection<IInviteModel>;
 }
 
 export async function createAppStore(): Promise<IAppStore> {
@@ -59,5 +69,6 @@ export async function createAppStore(): Promise<IAppStore> {
   return {
     site: db.collection<ISiteModel>("Site"),
     profile: db.collection<IProfileModel>("Profile"),
+    invite: db.collection<IInviteModel>("Invite"),
   };
 }

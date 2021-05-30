@@ -6,15 +6,13 @@ import { wrap } from "../../internal/util";
 export function siteId(ctx: IAppContext): RequestHandler {
   return wrap(async (req: Request, res, next) => {
     const hostname = req.hostname;
-    const parts = req.hostname.split(".");
+    const siteId = req.subdomains.shift();
 
-    // @see http://expressjs.com/en/4x/api.html#req.subdomains
-    if (parts.length < 3) {
+    if (!siteId) {
       throw new Error(`Hostname ${hostname}. Expecting 3rd-level domain name`);
     }
 
-    const siteId = parts.shift() || null;
-    req.context = { reqId: fmt("%s", Date.now()) };
+    req.context = { reqId: fmt("%s", Date.now()), siteId };
 
     if (typeof siteId === "string") {
       const data = await ctx.cache.site.get(siteId);

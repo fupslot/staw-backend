@@ -19,10 +19,7 @@ export function createProfileRouter(ctx: IAppContext): Router {
   profile.get(
     "/",
     wrap(async (req, res) => {
-      const count = await ctx.store.collection("Site").countDocuments();
-
-      res.status(200);
-      res.json({ site: req.context.site, count });
+      res.sendStatus(200);
     })
   );
 
