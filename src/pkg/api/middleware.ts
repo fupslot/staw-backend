@@ -1,9 +1,9 @@
 import { format as fmt } from "util";
 import { Request, RequestHandler } from "express";
-import { IAppContext } from "pkg/context";
+import { IAppContext } from "../../pkg/context";
 import { wrap } from "../../internal/util";
 
-export function siteId(ctx: IAppContext): RequestHandler {
+export function site(ctx: IAppContext): RequestHandler {
   return wrap(async (req: Request, res, next) => {
     const hostname = req.hostname;
     const siteId = req.subdomains.shift();

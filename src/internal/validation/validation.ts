@@ -1,6 +1,6 @@
 import Boom from "@hapi/boom";
 import { string, object } from "yup";
-import ObjectSchema, { AssertsShape, ObjectShape } from "yup/lib/object";
+import ObjectSchema, { ObjectShape } from "yup/lib/object";
 
 export const rule = {
   NCHAR: /^[\u002D|\u002E|\u005F|\w]+$/,

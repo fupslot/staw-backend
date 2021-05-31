@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { format as fmt } from "util";
 
-import { addMinutes, isAfter } from "date-fns";
-import { IAppContext } from "pkg/context";
-import { Dictionary, wrap } from "../../internal/util";
-import { json } from "../../internal/middleware";
-import { csprng } from "../../internal/crypto";
-import { validate, PostSignInSchema } from "../../internal/validation";
+import { addMinutes } from "date-fns";
+import { IAppContext } from "../../../pkg/context";
+import { Dictionary, wrap } from "../../../internal/util";
+import { json } from "../../../internal/middleware";
+import { csprng } from "../../../internal/crypto";
+import { validate, PostSignInSchema } from "../../../internal/validation";
 import Boom from "@hapi/boom";
 
 type SignInBody = {
@@ -68,42 +68,13 @@ export function createSignInRouter(ctx: IAppContext): Router {
       //   fmt("%s://%s/invite/?code=%s", protocol, host, code)
       // );
 
-      // await ctx.email.sendInvite({ inviteUrl })
-
-      res.sendStatus(201);
-    })
-  );
-
-  signIn.get(
-    "/invite/:code",
-    wrap<{ code: string }>(async (req, res) => {
-      const code = req.params.code;
-
-      const siteId = req.context.siteId;
-      const invite = await ctx.store.invite.findOne({
-        code: code,
-        siteId: siteId,
+      ctx.email.sendInvite({
+        sendTo: requestResult.email,
+        siteId: requestResult.siteId,
+        url: inviteUrl,
       });
 
-      const protocol = req.protocol;
-      const host = req.get("host");
-
-      if (!invite || isAfter(new Date(), invite.expireAt)) {
-        res.redirect(fmt("%s://%s/invite-fail", protocol, host));
-        return;
-      }
-
-      await ctx.store.invite.findOneAndUpdate(
-        { code, siteId },
-        {
-          $set: {
-            expireAt: new Date(),
-          },
-        }
-      );
-
-      const redirectTo = fmt("%s://%s", protocol, host);
-      res.redirect(redirectTo);
+      res.sendStatus(201);
     })
   );
 
