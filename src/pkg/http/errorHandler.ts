@@ -1,7 +1,7 @@
 import { Boom } from "@hapi/boom";
 import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 
-export default function errorHandler(): ErrorRequestHandler {
+export function errorHandler(): ErrorRequestHandler {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return (error: Boom, req: Request, res: Response, next: NextFunction) => {
     if (error?.isBoom) {
@@ -25,6 +25,8 @@ export default function errorHandler(): ErrorRequestHandler {
 
       return res.json(error.output.payload);
     }
+
+    console.error(error);
 
     res.sendStatus(500);
   };
