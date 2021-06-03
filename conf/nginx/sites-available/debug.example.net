@@ -18,11 +18,11 @@ server {
     # security headers
     include     example.net/security.conf;
 
-    location = /sign-in {
+    location = /sign-up {
         if ($request_method !~ ^(GET|POST)$) {
             return '405';
         }
-        proxy_pass http://backend/sign-in;
+        proxy_pass http://backend/sign-up;
         include    example.net/proxy.conf;
     }
 }
@@ -36,8 +36,28 @@ server {
     # security headers
     include     example.net/security.conf;
 
-    location = /login {
-        proxy_pass http://auth_backend/login;
+    ###
+    # Auth
+    #
+    location = /invite {
+        if ($arg_code = "") {
+            return 302 $scheme://$http_host/sign-in?error=invalid_invitation_code;
+        }
+
+        if ($request_method !~ ^(GET|POST)$) {
+            return 302 $scheme://$http_host/sign-in?error=invalid_action;
+        }
+        
+        proxy_pass http://backend/invite/;
+        include    example.net/proxy.conf;
+    }
+
+    location = /invite/fail {
+        if ($request_method != "GET") {
+            return 302 $scheme://$http_host/sign-in?error=invalid_action;
+        }
+
+        proxy_pass http://backend/invite/fail;
         include    example.net/proxy.conf;
     }
 
