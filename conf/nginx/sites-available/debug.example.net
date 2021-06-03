@@ -1,13 +1,30 @@
+upstream backend {
+    server 127.0.0.1:9000;
+}
+
 upstream auth_backend {
     server 127.0.0.1:8000;
 }
 
-upstream api_backend {
-    server 127.0.0.1:9000;
-}
-
 upstream dev_frontend {
     server 127.0.0.1:3000;
+}
+
+server {
+    listen      80;
+    listen      [::]:80;
+    server_name example.net;
+    
+    # security headers
+    include     example.net/security.conf;
+
+    location = /sign-in {
+        if ($request_method !~ ^(GET|POST)$) {
+            return '405';
+        }
+        proxy_pass http://backend/sign-in;
+        include    example.net/proxy.conf;
+    }
 }
 
 server {
@@ -85,7 +102,7 @@ server {
 
         #proxy_set_header X-Auth-Identity $auth_resp_auth_identity;
 
-        proxy_pass http://api_backend;
+        proxy_pass http://backend;
         include    example.net/proxy.conf;
     }
     
@@ -95,12 +112,8 @@ server {
         auth_request_set $auth_resp_auth_identity $upstream_http_x_auth_identity;
         auth_request_set $auth_resp_auth_error $upstream_http_x_auth_error;
         
-        add_header X-Auth-Identity          $auth_resp_auth_identity always;
-        
         proxy_pass http://dev_frontend;
         include    example.net/proxy.conf;
-        
-        # additional config
     }
     
     #include example.net/general.conf;    
