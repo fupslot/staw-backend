@@ -3,18 +3,18 @@ import { format as fmt } from "util";
 
 import { addMinutes } from "date-fns";
 import { IAppContext } from "../../../pkg/context";
-import { Dictionary, wrap } from "../../../internal/util";
-import { json } from "../../../internal/middleware";
+import { wrap, QueryParams, ResBody, ReqBody } from "../../../internal/util";
+import { urlencoded } from "../../../internal/middleware";
 import { csprng } from "../../../internal/crypto";
 import { validate, PostSignInSchema } from "../../../internal/validation";
 import Boom from "@hapi/boom";
 
-type SignInBody = {
+type SignInRequestBody = {
   siteId: string;
   email: string;
-};
+} & ReqBody;
 
-export function createSignInRouter(ctx: IAppContext): Router {
+export function createSignInRoute(ctx: IAppContext): Router {
   const signIn = Router();
 
   /**
@@ -24,40 +24,40 @@ export function createSignInRouter(ctx: IAppContext): Router {
    */
   signIn.post(
     "/sign-in",
-    json(),
-    wrap<Dictionary<string>, unknown, SignInBody, unknown>(async (req, res) => {
-      const requestResult = await validate(PostSignInSchema, req.body);
-
-      if (requestResult.siteId !== req.context.siteId) {
-        throw Boom.badRequest();
+    urlencoded(),
+    wrap<QueryParams, ResBody, SignInRequestBody>(async (req, res) => {
+      if (!req.is("application/x-www-form-urlencoded")) {
+        throw Boom.badRequest("invalid_request");
       }
 
+      const reqParams = await validate(PostSignInSchema, req.body);
+
       const site = await ctx.store.site.findOne({
-        siteId: requestResult.siteId,
+        siteId: reqParams.siteId,
       });
 
       if (site) {
         throw Boom.badRequest(
-          fmt('Requested siteId "%s" has already exists', requestResult.siteId),
+          fmt('Requested siteId "%s" has already exists', reqParams.siteId),
           {
-            siteId: requestResult.siteId,
+            siteId: reqParams.siteId,
           }
         );
       }
 
       await ctx.store.site.insertOne({
-        siteId: requestResult.siteId,
-        email: requestResult.email,
+        siteId: reqParams.siteId,
+        email: reqParams.email,
       });
 
       const code = csprng.generate(12);
 
       const protocol = req.protocol;
-      const host = fmt("%s.%s", requestResult.siteId, ctx.config.DOMAIN);
+      const host = fmt("%s.%s", reqParams.siteId, ctx.config.DOMAIN);
       const inviteUrl = fmt("%s://%s/api/v1/invite/%s", protocol, host, code);
 
       await ctx.store.invite.insertOne({
-        siteId: requestResult.siteId,
+        siteId: reqParams.siteId,
         code: code,
         expireAt: addMinutes(new Date(), 2),
       });
@@ -69,8 +69,8 @@ export function createSignInRouter(ctx: IAppContext): Router {
       // );
 
       ctx.email.sendInvite({
-        sendTo: requestResult.email,
-        siteId: requestResult.siteId,
+        sendTo: reqParams.email,
+        siteId: reqParams.siteId,
         url: inviteUrl,
       });
 
