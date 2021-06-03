@@ -1,6 +1,8 @@
 import * as os from "os";
-import { Db } from "mongodb";
+import { IAppStore } from "../store";
 import { RedisAsync } from "../cache";
+import { config, IAppConfig } from "../config";
+import { IMailService } from "../mail";
 
 export interface IAppCache {
   site: RedisAsync;
@@ -9,13 +11,16 @@ export interface IAppCache {
 export interface IAppContext {
   pid: number;
   hostname: string;
-  store: Db;
+  store: IAppStore;
   cache: IAppCache;
+  email: IMailService;
+  config: IAppConfig;
 }
 
 export interface IAppContextProviders {
-  store: Db;
+  store: IAppStore;
   cache: IAppCache;
+  email: IMailService;
 }
 
 export function createContext(
@@ -29,6 +34,10 @@ export function createContext(
     store: opts.store,
 
     cache: opts.cache,
+
+    email: opts.email,
+
+    config,
   };
 
   return Promise.resolve(context);

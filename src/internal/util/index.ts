@@ -7,6 +7,7 @@ export interface Dictionary<T> {
 export type ParamsDictionary = Dictionary<string>;
 export type ParamsArray = string[];
 
+export type QueryParams = ParamsDictionary;
 export type Params = ParamsDictionary | ParamsArray;
 export type ResBody = unknown;
 export type ReqBody = unknown;

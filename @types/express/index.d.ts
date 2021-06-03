@@ -6,6 +6,7 @@ interface ISite {
 
 type IRequestContext = {
   reqId: string;
+  siteId: string | null;
   site?: ISite | null;
 };
 

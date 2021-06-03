@@ -1,0 +1,22 @@
+@startuml
+
+participant ClientAgent
+participant Application
+participant AuthorizationServer
+participant Api
+
+ClientAgent -> Application: User would like to access the application
+ClientAgent <- Application: Go to the authorization server\nto grant the access, take the hash with you
+rnote over Application
+Application sees that the session cookie is missing
+it generates PKCE code verifier and code challenge
+@see https://example-app.com/pkce
+endrnote
+ClientAgent -> AuthorizationServer: User would like to login to Application,\nhere's the hash it gave me
+ClientAgent <- AuthorizationServer: Here is a temporary code, use it to get the token
+
+Application --> AuthorizationServer: Here is a temporary code and application secret\ngive me a token
+Application <-- AuthorizationServer: Code and secret are valid here is a token
+
+
+@endpuml

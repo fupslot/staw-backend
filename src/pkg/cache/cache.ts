@@ -1,6 +1,6 @@
 import util from "util";
 import { createClient, RedisClient } from "redis";
-import config from "../config";
+import { config } from "../config";
 
 export type CreateCacheHandlerOptions = {
   db: ICacheType;

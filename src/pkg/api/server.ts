@@ -1,7 +1,7 @@
 import express from "express";
 import { IAppContext } from "../context";
-import { createApiRoute } from "./routes";
-import { siteId } from "./middleware";
+import { createApiRoute } from "./route";
+import { site } from "./middleware";
 import errorHandler from "./errorHandler";
 
 interface HTTPServer {
@@ -12,11 +12,13 @@ export interface HTTPServerWithContext extends HTTPServer {
   context: IAppContext;
 }
 
-export const createServer = (context: IAppContext): HTTPServerWithContext => {
+export const createApiServer = (
+  context: IAppContext
+): HTTPServerWithContext => {
   const app = express();
 
   // Define global middlewares
-  app.use(siteId(context));
+  app.use(site(context));
 
   app.get("/api/v1", (req, res) => res.sendStatus(200)); // simple healthcheck
   app.use("/api/v1", createApiRoute(context));

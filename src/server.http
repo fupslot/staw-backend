@@ -17,5 +17,6 @@ Host: john.example.net
 Content-Type: application/json
 
 {
-  "email": "john.doe@example.net"
+  "siteId": "john",
+  "email": "fupslot@gmail.com"
 }
