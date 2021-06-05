@@ -11,8 +11,10 @@ export const rule = {
     /^[\u0009|\u0020-\u007E|\u0080-\uD7FF|\uE000-\uFFFD|\u{10000}-\u{10FFFF}]+$/u,
   URI: /^[a-zA-Z][a-zA-Z0-9+.-]+:/,
   VSCHAR: /^[\u0020-\u007E]+$/,
-  ALPHANUM: /^\w+$/g,
+  ALPHANUM: /^[a-zA-Z0-9]+$/g,
 };
+
+const commonRegexMessage = "${path} contains invalid characters";
 
 /**
  * Validate if a value matches a unicode character excluding the carriage
@@ -20,37 +22,40 @@ export const rule = {
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const uchar = string().matches(rule.UNICODECHARNOCRLF, "");
+export const uchar = string().matches(
+  rule.UNICODECHARNOCRLF,
+  commonRegexMessage
+);
 
 /**
  * Validate if a value matches against the printable set of unicode characters.
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const vschar = string().matches(rule.VSCHAR);
+export const vschar = string().matches(rule.VSCHAR, commonRegexMessage);
 
 /**
  * Validate if a value matches a unicode character.
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const nchar = string().matches(rule.NCHAR);
+export const nchar = string().matches(rule.NCHAR, commonRegexMessage);
 
 /**
  * Validate if a value matches a unicode character, including exclamation marks.
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const nqchar = string().matches(rule.NQCHAR);
+export const nqchar = string().matches(rule.NQCHAR, commonRegexMessage);
 
 /**
  * Validate if a value matches a unicode character, including exclamation marks and spaces.
  *
  * @see https://tools.ietf.org/html/rfc6749#appendix-A
  */
-export const nqschar = string().matches(rule.NQSCHAR);
+export const nqschar = string().matches(rule.NQSCHAR, commonRegexMessage);
 
-export const alphanum = string().matches(rule.ALPHANUM);
+export const alphanum = string().matches(rule.ALPHANUM, commonRegexMessage);
 
 type ValidationResult<T> = {
   [P in keyof T]: T[P];
@@ -79,7 +84,11 @@ export const submitProfileSchema = object().shape({
   email: string().email().required(),
 });
 
-export const PostSignInSchema = object().shape({
+export const PostSignUpSchema = object().shape({
   siteId: string().required(),
   email: string().email().required(),
+});
+
+export const InviteParamsSchema = object().shape({
+  code: alphanum,
 });

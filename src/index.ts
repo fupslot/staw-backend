@@ -1,5 +1,5 @@
 import { createLogger } from "./pkg/logger";
-import { createApiServer } from "./pkg/api/server";
+import { createHttpServer } from "./pkg/http";
 import { createContext, IAppCache } from "./pkg/context";
 import { createAppStore } from "./pkg/store";
 import { createCache, ICacheType } from "./pkg/cache";
@@ -36,7 +36,7 @@ export const main = async (): Promise<void> => {
   // requests on localhost and nginx seating on a public interface and
   // redirecting requests to nodejs app.
 
-  const app = createApiServer(context);
+  const app = createHttpServer(context);
   app.listen(config.PORT, () =>
     logger.info(`Listening on port ${config.PORT}`)
   );

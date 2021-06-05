@@ -1,7 +1,0 @@
-### sign-in
-
-POST /api/v1/sign-in
-Host: john.example.net
-Content-Type: application/x-www-form-urlencoded
-
-siteId=example&email=john.doe@example.net
