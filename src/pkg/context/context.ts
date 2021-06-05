@@ -1,7 +1,7 @@
 import * as os from "os";
 import { RedisAsync } from "../cache";
 import { config, IAppConfig } from "../config";
-import { IMailService } from "../mail";
+import { worker } from "../worker";
 import { PrismaClient } from "@prisma/client";
 
 export const prisma = new PrismaClient();
@@ -15,14 +15,12 @@ export interface IAppContext {
   hostname: string;
   store: typeof prisma;
   cache: IAppCache;
-  email: IMailService;
+  worker: typeof worker;
   config: IAppConfig;
 }
 
 export interface IAppContextProviders {
-  // store: IAppStore;
   cache: IAppCache;
-  email: IMailService;
 }
 
 export function createContext(
@@ -37,9 +35,9 @@ export function createContext(
 
     cache: opts.cache,
 
-    email: opts.email,
-
     config,
+
+    worker,
   };
 
   return Promise.resolve(context);

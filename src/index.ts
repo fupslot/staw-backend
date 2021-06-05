@@ -2,7 +2,6 @@ import { createLogger } from "./pkg/logger";
 import { createHttpServer } from "./pkg/http";
 import { createContext, IAppCache } from "./pkg/context";
 import { createCache, ICacheType } from "./pkg/cache";
-import { initMailService } from "./pkg/mail";
 import { config } from "./pkg/config";
 
 const logger = createLogger();
@@ -20,13 +19,13 @@ export const main = async (): Promise<void> => {
   // Initializing email service
   //
   // The service used to send transactional emails
-  const email = initMailService();
+  // const email = initMailService();
 
   // Initializing application context object
   //
   // The context carries references to modules and data structures
   // across API boundaries
-  const context = await createContext({ cache, email });
+  const context = await createContext({ cache });
 
   // Initializing http server and bind it to a localhost
   //

@@ -4,10 +4,11 @@ import { format as fmt } from "util";
 import { addMinutes } from "date-fns";
 import { IAppContext } from "../../context";
 import { wrap, QueryParams, ResBody, ReqBody } from "../../../internal/util";
-import { urlencoded } from "../../http";
+import { urlencoded, x_form_www_urlencoded_required } from "../../http";
 import { csprng } from "../../../internal/crypto";
 import { validate, PostSignUpSchema } from "../../../internal/validation";
 import Boom from "@hapi/boom";
+import { send_invite } from "../../worker/mail";
 
 type SignUpRequestBody = {
   siteId: string;
@@ -25,11 +26,8 @@ export function createSignUpRoute(ctx: IAppContext): Router {
   signUp.post(
     "/sign-up",
     urlencoded(),
+    x_form_www_urlencoded_required(),
     wrap<QueryParams, ResBody, SignUpRequestBody>(async (req, res) => {
-      if (!req.is("application/x-www-form-urlencoded")) {
-        throw Boom.badRequest("invalid_request");
-      }
-
       const reqParams = await validate(PostSignUpSchema, req.body);
 
       const siteExist = await ctx.store.site.findFirst({
@@ -53,7 +51,7 @@ export function createSignUpRoute(ctx: IAppContext): Router {
       const host = fmt("%s.%s", reqParams.siteId, ctx.config.DOMAIN);
       const inviteUrl = fmt("%s://%s/invite/%s", protocol, host, code);
 
-      await ctx.store.site.create({
+      const newSite = await ctx.store.site.create({
         data: {
           display_name: reqParams.siteId,
           alias: reqParams.siteId,
@@ -66,14 +64,18 @@ export function createSignUpRoute(ctx: IAppContext): Router {
             },
           },
         },
+
+        include: {
+          invites: true,
+        },
       });
 
-      // ctx.worker.dispatch(send_invite_worker({ }))
-      ctx.email.sendInvite({
-        sendTo: reqParams.email,
-        siteId: reqParams.siteId,
-        url: inviteUrl,
-      });
+      ctx.worker.mail.dispatch(
+        send_invite({
+          site: newSite,
+          invite: newSite.invites[0],
+        })
+      );
 
       res.sendStatus(201);
     })
