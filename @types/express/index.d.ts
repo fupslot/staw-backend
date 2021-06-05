@@ -1,17 +1,18 @@
 type SiteId = string | null;
 
 interface ISite {
-  siteId: SiteId;
+  id: number;
+  alias: string;
 }
-
-type IRequestContext = {
-  reqId: string;
-  siteId: string | null;
-  site?: ISite | null;
-};
 
 declare namespace Express {
   interface Request {
-    context: IRequestContext;
+    siteId: string | null;
+    site?: ISite | null;
+    locals: {
+      SIGN_IN_URL: string;
+      SITE_BASE_URL: string;
+      INVITE_FAIL_URL: string;
+    };
   }
 }

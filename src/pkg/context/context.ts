@@ -1,8 +1,10 @@
 import * as os from "os";
-import { IAppStore } from "../store";
 import { RedisAsync } from "../cache";
 import { config, IAppConfig } from "../config";
 import { IMailService } from "../mail";
+import { PrismaClient } from "@prisma/client";
+
+export const prisma = new PrismaClient();
 
 export interface IAppCache {
   site: RedisAsync;
@@ -11,14 +13,14 @@ export interface IAppCache {
 export interface IAppContext {
   pid: number;
   hostname: string;
-  store: IAppStore;
+  store: typeof prisma;
   cache: IAppCache;
   email: IMailService;
   config: IAppConfig;
 }
 
 export interface IAppContextProviders {
-  store: IAppStore;
+  // store: IAppStore;
   cache: IAppCache;
   email: IMailService;
 }
@@ -31,7 +33,7 @@ export function createContext(
 
     hostname: os.hostname(),
 
-    store: opts.store,
+    store: prisma,
 
     cache: opts.cache,
 
