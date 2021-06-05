@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Site {
+  id Int @id @default(autoincrement())
+  display_name String @db.VarChar(100) @unique 
+  alias String @db.VarChar(32) @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  users User[]
+  clients Client[]
+  invites Invite[]
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  first_name String @db.VarChar(100)
+  last_name String @db.VarChar(100)
+  username String @db.VarChar(100)
+  email String @db.VarChar(100)
+
+  site Site @relation(fields: [site_id], references:[id])
+  site_id Int
+}
+
+model Invite {
+  id Int @id @default(autoincrement())
+  code String @db.VarChar(100) @unique
+  email String @db.VarChar(100)
+  active Boolean @db.Boolean @default(true)
+  invite_uri String @db.VarChar()
+  expire_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  site Site @relation(fields: [site_id], references: [id])
+  site_id Int
+}
+
+model Client {
+  id Int @id @default(autoincrement())
+  client_id String @db.VarChar(100) @unique
+  client_secret String @db.VarChar(100) @unique
+  callback String @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  site Site @relation(fields: [site_id], references:[id])
+  site_id Int
+}

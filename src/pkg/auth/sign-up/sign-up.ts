@@ -32,11 +32,13 @@ export function createSignUpRoute(ctx: IAppContext): Router {
 
       const reqParams = await validate(PostSignUpSchema, req.body);
 
-      const site = await ctx.store.site.findOne({
-        siteId: reqParams.siteId,
+      const siteExist = await ctx.store.site.findFirst({
+        where: {
+          alias: reqParams.siteId,
+        },
       });
 
-      if (site) {
+      if (siteExist) {
         throw Boom.badRequest(
           fmt('Requested siteId "%s" has already exists', reqParams.siteId),
           {
@@ -45,25 +47,28 @@ export function createSignUpRoute(ctx: IAppContext): Router {
         );
       }
 
-      await ctx.store.site.insertOne({
-        siteId: reqParams.siteId,
-        email: reqParams.email,
-      });
-
       const code = csprng.generate(12);
 
       const protocol = req.protocol;
       const host = fmt("%s.%s", reqParams.siteId, ctx.config.DOMAIN);
       const inviteUrl = fmt("%s://%s/invite/%s", protocol, host, code);
 
-      await ctx.store.invite.insertOne({
-        siteId: reqParams.siteId,
-        code: code,
-        expireAt: addMinutes(new Date(), 2),
+      await ctx.store.site.create({
+        data: {
+          display_name: reqParams.siteId,
+          alias: reqParams.siteId,
+          invites: {
+            create: {
+              code,
+              invite_uri: inviteUrl,
+              email: reqParams.email,
+              expire_at: addMinutes(new Date(), 60), // todo
+            },
+          },
+        },
       });
 
-      console.log(inviteUrl);
-
+      // ctx.worker.dispatch(send_invite_worker({ }))
       ctx.email.sendInvite({
         sendTo: reqParams.email,
         siteId: reqParams.siteId,

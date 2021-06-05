@@ -4,12 +4,20 @@ POST /sign-up
 Host: example.net
 Content-Type: application/x-www-form-urlencoded
 
-siteId=super&email=john.doe@super.net
+siteId=super1&email=john.doe@super1.net
 
 
 ### invite
-GET /invite?code=c0ed5fa
-Host: super.example.net
+GET /invite?code=1eba00a8827f71d0
+Host: super1.example.net
+
+### submit invite
+
+POST /invite?code=1eba00a8827f71d0
+Host: super1.example.net
+Content-Type: application/x-www-form-urlencoded
+
+code=1eba00a8827f71d0
 
 ### 
 GET /invite-fail?reason
