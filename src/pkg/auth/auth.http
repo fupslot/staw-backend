@@ -4,7 +4,7 @@ POST /sign-up
 Host: example.net
 Content-Type: application/x-www-form-urlencoded
 
-siteId=super1&email=john.doe@super1.net
+siteId=oops2&email=fdashlot@gmail.com
 
 
 ### invite
