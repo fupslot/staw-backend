@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request } from "express";
 import { isAfter } from "date-fns";
 import { IAppContext } from "pkg/context";
 import {
@@ -7,13 +7,27 @@ import {
   x_form_www_urlencoded_required,
 } from "../../http";
 import { validate, InviteParamsSchema } from "../../../internal/validation";
-import { wrap, QueryParams, ResBody, ReqBody } from "../../../internal/util";
+import { wrap } from "../../../internal/util";
 
-type InviteQuery = {
+interface InviteParams {
   code: string;
-};
+}
 
-type InviteSubmit = InviteQuery;
+type InviteRequestParamsType = Required<InviteParams>;
+type InviteRequestQueryType = Required<InviteParams>;
+type InviteRequestBodyType = Required<InviteParams>;
+
+type ViewInviteRequest = Request<
+  InviteRequestParamsType,
+  unknown,
+  unknown,
+  InviteRequestQueryType
+>;
+type AcceptInviteRequest = Request<
+  InviteRequestParamsType,
+  unknown,
+  InviteRequestBodyType
+>;
 
 export function createInviteRoute(ctx: IAppContext): Router {
   const invite = Router();
@@ -23,7 +37,7 @@ export function createInviteRoute(ctx: IAppContext): Router {
 
   invite.get(
     "/invite",
-    wrap<QueryParams, ResBody, ReqBody, InviteQuery>(async (req, res) => {
+    wrap<ViewInviteRequest>(async (req, res) => {
       const params = await validate(InviteParamsSchema, req.query);
 
       const invite = await ctx.store.invite.findFirst({
@@ -36,7 +50,7 @@ export function createInviteRoute(ctx: IAppContext): Router {
       });
 
       if (!invite || isAfter(new Date(), invite.expire_at)) {
-        return res.redirect(req.locals.INVITE_FAIL_URL);
+        return res.redirect(req.endpoint.INVITE_FAIL_URL);
       }
 
       res.sendStatus(200);
@@ -46,7 +60,7 @@ export function createInviteRoute(ctx: IAppContext): Router {
   invite.post(
     "/invite",
     x_form_www_urlencoded_required(),
-    wrap<QueryParams, ResBody, InviteSubmit>(async (req, res) => {
+    wrap<AcceptInviteRequest>(async (req, res) => {
       const body = await validate(InviteParamsSchema, req.body);
       const code = body.code;
 
@@ -60,7 +74,7 @@ export function createInviteRoute(ctx: IAppContext): Router {
       });
 
       if (!invite || isAfter(new Date(), invite.expire_at)) {
-        res.redirect(req.locals.INVITE_FAIL_URL);
+        res.redirect(req.endpoint.INVITE_FAIL_URL);
         return;
       }
 
@@ -72,7 +86,7 @@ export function createInviteRoute(ctx: IAppContext): Router {
         where: { id: invite.id },
       });
 
-      res.redirect(req.locals.SIGN_IN_URL);
+      res.redirect(req.endpoint.SIGN_IN_URL);
     })
   );
 

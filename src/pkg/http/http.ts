@@ -1,4 +1,6 @@
 import express from "express";
+import session from "express-session";
+import cookieParser from "cookie-parser";
 import { IAppContext } from "../context";
 import { createApiRoute } from "../api";
 import { subdomain } from "./middleware";
@@ -18,7 +20,19 @@ export const createHttpServer = (
 ): HTTPServerWithContext => {
   const app = express();
 
+  app.set("trust proxy", true);
   // app.set('query parser', 'extended')
+
+  app.use(cookieParser());
+
+  app.use(
+    session({
+      name: context.config.SESSION_NAME,
+      secret: context.config.SESSION_SECRET,
+      resave: true,
+      saveUninitialized: true,
+    })
+  );
 
   // Define global middlewares
   app.use(subdomain(context));

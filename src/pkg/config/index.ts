@@ -8,6 +8,8 @@ export type IAppConfig = {
   MAIL_APIKEY: string;
   MAIL_NOREPLY: string;
   DATABASE_URL: string;
+  SESSION_NAME: string;
+  SESSION_SECRET: string;
 };
 
 export const config: IAppConfig = {
@@ -42,4 +44,14 @@ export const config: IAppConfig = {
   DATABASE_URL:
     process.env.DATABASE_URL ||
     "postgresql://postgres:postgres@pdb0.example.net:5432/staw",
+
+  /**
+   * The name of the cookie to set
+   */
+  SESSION_NAME: process.env.SESSION_NAME || "sessionid",
+
+  /**
+   * Session secret value use to sign & verify cookie values
+   */
+  SESSION_SECRET: process.env.SESSION_SECRET || "secret",
 };

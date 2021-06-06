@@ -1,19 +1,22 @@
-import { Router } from "express";
+import { Router, Request } from "express";
 import { format as fmt } from "util";
 
 import { addMinutes } from "date-fns";
 import { IAppContext } from "../../context";
-import { wrap, QueryParams, ResBody, ReqBody } from "../../../internal/util";
+import { wrap } from "../../../internal/util";
 import { urlencoded, x_form_www_urlencoded_required } from "../../http";
 import { csprng } from "../../../internal/crypto";
 import { validate, PostSignUpSchema } from "../../../internal/validation";
 import Boom from "@hapi/boom";
 import { send_invite } from "../../worker/mail";
 
-type SignUpRequestBody = {
+interface SignUpParams {
   siteId: string;
   email: string;
-} & ReqBody;
+}
+
+type SignUpBodyParamsType = Required<SignUpParams>;
+type SignUpRequest = Request<unknown, unknown, SignUpBodyParamsType>;
 
 export function createSignUpRoute(ctx: IAppContext): Router {
   const signUp = Router();
@@ -27,7 +30,7 @@ export function createSignUpRoute(ctx: IAppContext): Router {
     "/sign-up",
     urlencoded(),
     x_form_www_urlencoded_required(),
-    wrap<QueryParams, ResBody, SignUpRequestBody>(async (req, res) => {
+    wrap<SignUpRequest>(async (req, res) => {
       const reqParams = await validate(PostSignUpSchema, req.body);
 
       const siteExist = await ctx.store.site.findFirst({

@@ -18,18 +18,17 @@ export function subdomain(ctx: IAppContext): RequestHandler {
     const protocol = req.protocol;
     const host = req.get("host");
 
-    req.locals = {
+    req.endpoint = {
       SITE_BASE_URL: fmt("%s://%s", protocol, host),
       SIGN_IN_URL: fmt("%s://%s/sign-in", protocol, host),
-      INVITE_FAIL_URL: fmt("%s://%s/invite/fail", protocol, host),
+      INVITE_FAIL_URL: fmt("%s://%s/invite/fail%s", protocol, host),
     };
 
     if (typeof siteId === "string") {
+      // Note: Should probably cache {site} object. LRU?
       req.site = await ctx.store.site.findUnique({
         where: { alias: siteId },
       });
-
-      // Note: Probably should cache {site} object. LRU?
     }
 
     next();
@@ -37,11 +36,13 @@ export function subdomain(ctx: IAppContext): RequestHandler {
 }
 
 export function subdomain_required(): RequestHandler {
-  return (req, res, next) => {
-    if (!req.site) {
+  return (req: Request, res, next) => {
+    const hostname = req.hostname;
+
+    if (!("site" in req)) {
       return next(
         Boom.badRequest(
-          fmt("Expecting 3rd-level domain name and got %s", req.hostname)
+          fmt("Expecting 3rd-level domain name and got %s", hostname)
         )
       );
     }
