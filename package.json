@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "debug": "cat .env | xargs && ./node_modules/.bin/nodemon --delay=1500ms --legacy-watch --exec \"node -r ts-node/register --inspect=0.0.0.0:9999 ./src/index.ts\"",
+    "debug": "export $(cat .env | xargs) && ./node_modules/.bin/nodemon --delay=1500ms --legacy-watch --exec \"node -r ts-node/register --inspect=0.0.0.0:9999 ./src/index.ts\"",
     "migrate": "./node_modules/.bin/prisma migrate dev",
     "seed": "./node_modules/.bin/prisma db seed --preview-feature"
   },
