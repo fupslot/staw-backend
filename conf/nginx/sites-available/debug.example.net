@@ -95,8 +95,8 @@ server {
         proxy_set_header Content-Length "";
     }
 
-    location /auth/ {
-        proxy_pass http://auth_backend;
+    location /oauth2/ {
+        proxy_pass http://backend;
         include    example.net/proxy.conf;
     }
 
