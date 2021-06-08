@@ -1,0 +1,149 @@
+# References
+#
+# https://dev-64314946.okta.com/oauth2/default/.well-known/oauth-authorization-server
+# http://oauth.com/playground/
+# https://oauth.net/
+# https://www.youtube.com/oktadev
+# https://oauth2simplified.com/
+
+GET http://john.example.net/auth/oauth/authorize?response_type=code&client_id=c0&state=xyz&redirect_uri=http%3A%2F%2F0.apps.john.example.net
+Host: john.example.net
+Authorization: Bearer qwerty
+
+
+
+
+
+
+
+
+### Authorization Code
+#
+# PKCE Tools - https://example-app.com/pkce
+#
+GET https://dev-64314946.okta.com/oauth2/default/v1/authorize?response_type=code&scope=application&client_id=0oauaxbqu0A3sIgVe5d6&state=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&redirect_uri=https://example-app.com/redirect&code_challenge=43LiG9cL2KDHvFeiEMhQZN_9WMgHffMa9abNCjmZGVU&code_challenge_method=S256
+
+###
+
+POST https://dev-64314946.okta.com/oauth2/default/v1/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&code=4DumCa4KEAmFeTjTTzBr4zy6mFHFJ9ISHh5djHbUBsg
+
+
+###
+#
+# Introspect token 
+#
+# Asking authorization server to validate the token. The response should be either {"active": true | false }
+POST https://dev-64314946.okta.com/oauth2/default/v1/introspect
+Content-Type: application/x-www-form-urlencoded
+
+client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&token=eyJraWQiOiJGbF80WVE0azdIMF90d1gyeEg5Ukx0SGpCcVhTbk5OejF5ZVRnd3M5blB3IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkVFZmpOOFROOEdLdWJOUzNIQk1qQW4zOHJTQ0Z4M0Qxb25nakVvcy1XTE0iLCJpc3MiOiJodHRwczovL2Rldi02NDMxNDk0Ni5va3RhLmNvbS9vYXV0aDIvZGVmYXVsdCIsImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE2MjI2NDQ0MjYsImV4cCI6MTYyMjY0ODAyNiwiY2lkIjoiMG9hdWF4YnF1MEEzc0lnVmU1ZDYiLCJ1aWQiOiIwMHV1YTI1ZXlmeGxKSlRiWDVkNiIsInNjcCI6WyJhcHBsaWNhdGlvbiJdLCJzdWIiOiJmdXBzbG90QGdpdGh1Yi5va3RhaWRwIn0.lUWzUvGSDGWnREAKlbF7uVVvEms4_sQXuQ5UMXJID_89xxcvbnqUcL140RomO-QLap_8M2pLNmIxyBSBgtZsQT6x0pvFwkQCX9fd15lHvvAnRv84IjZWMk97nyM4DfVauem27qWYUQV2dwSK7mvBbQaoS9e9OqRmDhA19qVPDvtKAW-tyG03UHxA-QjmMOoxT9pgf43hekI5FmXcWPbaYHJVAL0T761RcTe3pcesICGc5g0pcUBc3RZ8p5HHGG0ugk_O51nisXfNGnjihYhhZfBtCKWy_wN4jK3W-9DZOO7JBKVPxMdQRIJ0t9ozHaAKq_sAiESIW-JRIyPz4Si5NQ
+
+
+###
+#
+# Revoke token
+#
+# The response will be empty and will always return HTTP 200, even if you send 
+# it invalid or already revoked tokens. This can make it a bit tricky to know whether the revocation request worked.
+# To check if the token really is revoked, make another request to the introspection endpoint
+POST https://dev-64314946.okta.com/oauth2/default/v1/revoke
+Content-Type: application/x-www-form-urlencoded
+
+client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&token=eyJraWQiOiJGbF80WVE0azdIMF90d1gyeEg5Ukx0SGpCcVhTbk5OejF5ZVRnd3M5blB3IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkVFZmpOOFROOEdLdWJOUzNIQk1qQW4zOHJTQ0Z4M0Qxb25nakVvcy1XTE0iLCJpc3MiOiJodHRwczovL2Rldi02NDMxNDk0Ni5va3RhLmNvbS9vYXV0aDIvZGVmYXVsdCIsImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE2MjI2NDQ0MjYsImV4cCI6MTYyMjY0ODAyNiwiY2lkIjoiMG9hdWF4YnF1MEEzc0lnVmU1ZDYiLCJ1aWQiOiIwMHV1YTI1ZXlmeGxKSlRiWDVkNiIsInNjcCI6WyJhcHBsaWNhdGlvbiJdLCJzdWIiOiJmdXBzbG90QGdpdGh1Yi5va3RhaWRwIn0.lUWzUvGSDGWnREAKlbF7uVVvEms4_sQXuQ5UMXJID_89xxcvbnqUcL140RomO-QLap_8M2pLNmIxyBSBgtZsQT6x0pvFwkQCX9fd15lHvvAnRv84IjZWMk97nyM4DfVauem27qWYUQV2dwSK7mvBbQaoS9e9OqRmDhA19qVPDvtKAW-tyG03UHxA-QjmMOoxT9pgf43hekI5FmXcWPbaYHJVAL0T761RcTe3pcesICGc5g0pcUBc3RZ8p5HHGG0ugk_O51nisXfNGnjihYhhZfBtCKWy_wN4jK3W-9DZOO7JBKVPxMdQRIJ0t9ozHaAKq_sAiESIW-JRIyPz4Si5NQ
+
+
+
+
+### Refresh Token
+GET https://dev-64314946.okta.com/oauth2/default/v1/authorize?response_type=code&scope=offline_access+application&client_id=0oauaxbqu0A3sIgVe5d6&state=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&redirect_uri=https://example-app.com/redirect&code_challenge=43LiG9cL2KDHvFeiEMhQZN_9WMgHffMa9abNCjmZGVU&code_challenge_method=S256
+
+###
+
+POST https://dev-64314946.okta.com/oauth2/default/v1/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&code=CS7qJRhQz_eVBXA6GqtLZP5WDsOMa5b88KJ0x7ROlmY
+
+###
+POST https://dev-64314946.okta.com/oauth2/default/v1/token 
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=refresh_token&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&refresh_token=kvLfUvYehF7jVVHVcQ2dMkj9N10LvtVeetjs_E-VnZo
+
+
+
+
+
+
+
+### Single Page Application
+#
+# 
+#
+https://dev-64314946.okta.com/oauth2/default/v1/authorize?response_type=code&scope=application&client_id=0oaufgg09hR206l6s5d6&state=d6974a178682bcf0e83300f3833ef4a3cc0fdb7de2b5f6f1fd18a935&redirect_uri=https://example-app.com/redirect&code_challenge=RmoEIJZqXwFIxOctcuTlmBCSyo8Tearq4KY_gFYk5T4&code_challenge_method=S256
+
+
+###
+POST https://dev-64314946.okta.com/oauth2/default/v1/token 
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&client_id=0oaufgg09hR206l6s5d6&code_verifier=d6974a178682bcf0e83300f3833ef4a3cc0fdb7de2b5f6f1fd18a935&code=fHll4wYCGFzcMzN7jgwcBA8vBq149Iaam-an_fxM-Ew
+
+
+
+
+
+
+### Client Credentials Flow
+#
+# Use for machine-to-machine interactions
+#
+POST https://dev-64314946.okta.com/oauth2/default/v1/token 
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&scope=offline_access+application&client_id=0oaufmetwcU2RN2Ye5d6&client_secret=11LPQVnONVIh5keeIyX3yknJ18Y9MnKwzKqVkc-w
+
+
+### OpenID 
+#
+# OpenId token used to identify user
+#
+GET https://dev-64314946.okta.com/oauth2/default/v1/authorize?response_type=code&scope=openid+profile+email&client_id=0oauaxbqu0A3sIgVe5d6&redirect_uri=https://example-app.com/redirect&state=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&code_challenge=43LiG9cL2KDHvFeiEMhQZN_9WMgHffMa9abNCjmZGVU&code_challenge_method=S256
+
+### 
+POST https://dev-64314946.okta.com/oauth2/default/v1/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&code=atvZUNnqNG2s3dMgV3Gt6clgqAh_OvViKZpNJfUIaT0
+
+
+
+
+
+
+
+### OAuth Scopes
+#
+#
+GET https://dev-64314946.okta.com/oauth2/default/v1/authorize?response_type=code&scope=billing:read+billing:payment_method&client_id=0oauaxbqu0A3sIgVe5d6&state=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&redirect_uri=https://example-app.com/redirect&code_challenge=43LiG9cL2KDHvFeiEMhQZN_9WMgHffMa9abNCjmZGVU&code_challenge_method=S256
+
+### Request Token
+
+POST https://dev-64314946.okta.com/oauth2/default/v1/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&code=e0jOsjNkDvQ9pmlE-yeTi9iQ0uVpANsT0g-wcr17_j8
+
+
+###
+#
+# Introspect token 
+#
+# Asking authorization server to validate the token. The response should be either {"active": true | false }
+POST https://dev-64314946.okta.com/oauth2/default/v1/introspect
+Content-Type: application/x-www-form-urlencoded
+
+client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&token=eyJraWQiOiJGbF80WVE0azdIMF90d1gyeEg5Ukx0SGpCcVhTbk5OejF5ZVRnd3M5blB3IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULnNIV2tscldOMkNxd21yZWV3dXBjX0NXeE5oOHJaaW9lMFRCbUxLOUZLc1EiLCJpc3MiOiJodHRwczovL2Rldi02NDMxNDk0Ni5va3RhLmNvbS9vYXV0aDIvZGVmYXVsdCIsImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE2MjI2NDYzNzgsImV4cCI6MTYyMjY0OTk3OCwiY2lkIjoiMG9hdWF4YnF1MEEzc0lnVmU1ZDYiLCJ1aWQiOiIwMHV1YTI1ZXlmeGxKSlRiWDVkNiIsInNjcCI6WyJiaWxsaW5nOnJlYWQiLCJiaWxsaW5nOnBheW1lbnRfbWV0aG9kIl0sInN1YiI6ImZ1cHNsb3RAZ2l0aHViLm9rdGFpZHAifQ.hRFbZ2s8PbOl5IXqoR0GaAencr6htUeXgBXydeGWdlKBotCxMwEfYrNW0ZE7w5KFMXbWTbUXNufvPmoOMZjlmhDF84MsH5a6ylPK4dgPAtVQua0cJ4jQk-Xk2ynHb2WjCHmSXSI9zBzofXFkPUH5YQGnZZegQxw_h98yZ35DdqmohKm2_Iwlvq3HC18JxtNU1zG5pSbjceYzUTuJZ3vJOPrlVciK-n8dNqA01W1dgqYy5bONFByG70EZGqHu5K6ecmtmvbrkuJ_ZN42Tzocx2fzmtPgtdNQIXiBoiaxn1Z5vBnx_1cZPRbS3sgXwJSTrV4TMvdUk4uH7sH1eI1ZWsw

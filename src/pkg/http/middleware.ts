@@ -54,7 +54,11 @@ export function subdomain_required(): RequestHandler {
 export function x_form_www_urlencoded_required(): RequestHandler {
   return (req, res, next) => {
     if (!req.is("application/x-www-form-urlencoded")) {
-      return next(Boom.badRequest("invalid_request"));
+      return next(
+        Boom.badRequest(
+          "Invalid request: expecting content-type 'application/x-www-form-urlencoded'"
+        )
+      );
     }
 
     next();

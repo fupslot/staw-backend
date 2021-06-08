@@ -48,7 +48,7 @@ export const createHttpServer = (
   app.get("/health", (req, res) => res.sendStatus(200)); // simple healthcheck
 
   app.use("/api/v1", createApiRoute(context));
-  app.use(createAuthRoute(context));
+  app.use("/oauth2", createAuthRoute(context));
 
   app.use(errorHandler());
 

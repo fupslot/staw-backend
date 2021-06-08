@@ -1,0 +1,1 @@
+GET http://john.example.net/oauth2/default/v1/authorize?response_type=code&scope=application&client_id=0oauaxbqu0A3sIgVe5d6&state=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&redirect_uri=https://example-app.com/redirect&code_challenge=43LiG9cL2KDHvFeiEMhQZN_9WMgHffMa9abNCjmZGVU&code_challenge_method=S256
