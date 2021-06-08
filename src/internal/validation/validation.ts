@@ -115,4 +115,4 @@ export const state = nqchar.required();
 export const scope = nqchar;
 export const redirect_uri = string().required().url();
 export const code_challenge = unreserved43_128.required();
-export const code_challenge_hash = alphanum.required();
+export const code_challenge_hash = mixed().required().oneOf(["S256"]);

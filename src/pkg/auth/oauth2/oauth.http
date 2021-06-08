@@ -21,14 +21,14 @@ Authorization: Bearer qwerty
 #
 # PKCE Tools - https://example-app.com/pkce
 #
-GET https://dev-64314946.okta.com/oauth2/default/v1/authorize?response_type=code&scope=application&client_id=0oauaxbqu0A3sIgVe5d6&state=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&redirect_uri=https://example-app.com/redirect&code_challenge=43LiG9cL2KDHvFeiEMhQZN_9WMgHffMa9abNCjmZGVU&code_challenge_method=S256
+GET https://dev-64314946.okta.com/oauth2/default/v1/authorize?response_type=code&scope=application&client_id=0oauaxbqu0A3sIgVe5d6&state=e438a33687bd652b215a896f1ec485ad594b06f528a7459032705fac&redirect_uri=https://example-app.com/redirect&code_challenge=2-6ljljJqyyKgSbYvc_sd94bnCWEYVvCQZBvLgGULVk&code_challenge_method=S256
 
 ###
 
 POST https://dev-64314946.okta.com/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&code=4DumCa4KEAmFeTjTTzBr4zy6mFHFJ9ISHh5djHbUBsg
+grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&code=6tXJvFPj4R55NlXzVAFHz8kx1inb8jQ8THQrPO1xKsc
 
 
 ###

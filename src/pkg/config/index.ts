@@ -1,3 +1,5 @@
+import { createPublicKey, createPrivateKey, KeyObject } from "crypto";
+
 const boolTrue = ["True", "true", "1"];
 
 export type IAppConfig = {
@@ -10,6 +12,8 @@ export type IAppConfig = {
   DATABASE_URL: string;
   SESSION_NAME: string;
   SESSION_SECRET: string;
+  PKCE_PUBLIC_KEY: KeyObject;
+  PKCE_PRIVATE_KEY: KeyObject;
 };
 
 export const config: IAppConfig = {
@@ -54,4 +58,33 @@ export const config: IAppConfig = {
    * Session secret value use to sign & verify cookie values
    */
   SESSION_SECRET: process.env.SESSION_SECRET || "secret",
+
+  /**
+   * PKCE public / private keys
+   */
+  PKCE_PUBLIC_KEY: (() => {
+    if (!process.env.PKCE_PUBLIC_KEY) {
+      console.error("Missing configuration: pkce public key");
+      process.exit(1);
+    }
+
+    return createPublicKey({
+      key: Buffer.from(process.env.PKCE_PUBLIC_KEY, "base64"),
+      type: "spki",
+      format: "der",
+    });
+  })(),
+
+  PKCE_PRIVATE_KEY: (() => {
+    if (!process.env.PKCE_PRIVATE_KEY) {
+      console.error("Missing configuration: pkce private key");
+      process.exit(1);
+    }
+
+    return createPrivateKey({
+      key: Buffer.from(process.env.PKCE_PRIVATE_KEY, "base64"),
+      format: "der",
+      type: "pkcs8",
+    });
+  })(),
 };

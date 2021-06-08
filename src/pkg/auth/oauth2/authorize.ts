@@ -2,7 +2,12 @@
 import { Router, Request } from "express";
 import Boom from "@hapi/boom";
 import { IAppContext } from "../../context";
-import { wrap } from "../../../internal/util";
+import {
+  wrap,
+  pkce,
+  printJSON,
+  PKCECodeChallengeHash,
+} from "../../../internal";
 import { urlencoded } from "../../http";
 import {
   response_type,
@@ -15,7 +20,6 @@ import {
 } from "../../../internal/validation";
 
 type ResponseType = "code" | "token";
-type CodeChallengeHash = "S256";
 interface RequestParams {
   authz: string;
 }
@@ -35,7 +39,7 @@ interface RequestQueryParams {
   state: string;
   redirect_uri: string;
   code_challenge: string;
-  code_challenge_hash: CodeChallengeHash;
+  code_challenge_hash: PKCECodeChallengeHash;
 }
 
 type RequestParamsType = Readonly<Required<RequestParams>>;
@@ -106,14 +110,29 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
 
       if (!code_challenge_hash.isValid(req.query.code_challenge_hash)) {
         throw Boom.badRequest(
-          "Invalid required: attribute 'code_challenge_hash' is required"
+          "Invalid required: attribute 'code_challenge_hash'=S256 is required"
         );
       }
 
       console.log(req.query);
 
+      const pkceCode = {
+        challenge: req.query.code_challenge,
+        hash: req.query.code_challenge_hash,
+      };
+
       // validationResult.response_type == "code";
-      // 1. validate authorization server name (ALPHA)
+      // 1. generate code
+      const returnCode = pkce.returnCode(ctx.config.PKCE_PRIVATE_KEY, pkceCode);
+
+      printJSON(returnCode);
+
+      if (
+        !pkce.returnCodeVerify(ctx.config.PKCE_PUBLIC_KEY, pkceCode, returnCode)
+      ) {
+        console.log("bad code");
+      }
+
       // req.params.authorizationServer;
 
       // 2. validate query params

@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "pkce-sign": "node -r ts-node/register ./tools/generate_pkce_sign.ts",
+    "pkce-challenge": "node -r ts-node/register ./tools/generate_pkce.ts",
     "debug": "export $(cat .env | xargs) && ./node_modules/.bin/nodemon --delay=1500ms --legacy-watch --exec \"node -r ts-node/register --inspect=0.0.0.0:9999 ./src/index.ts\"",
     "migrate": "./node_modules/.bin/prisma migrate dev",
     "seed": "./node_modules/.bin/prisma db seed --preview-feature"
@@ -27,6 +29,7 @@
     "@types/mongodb": "^3.6.16",
     "@types/redis": "^2.8.28",
     "async": "^3.2.0",
+    "base64url": "^3.0.1",
     "cookie-parser": "^1.4.5",
     "date-fns": "^2.22.1",
     "express": "^4.17.1",

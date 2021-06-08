@@ -13,3 +13,7 @@ export const wrap = <RequestType = Request, ResponseType = Response>(
     fn.call(null, req, res, next).catch(next);
   };
 };
+
+export function printJSON(value: Record<string, unknown>): void {
+  console.log(JSON.stringify(value, null, 2));
+}

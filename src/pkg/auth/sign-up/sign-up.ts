@@ -5,7 +5,7 @@ import { addMinutes } from "date-fns";
 import { IAppContext } from "../../context";
 import { wrap } from "../../../internal/util";
 import { urlencoded, x_form_www_urlencoded_required } from "../../http";
-import { csprng } from "../../../internal/crypto";
+import { randomAlphaDigit } from "../../../internal/crypto";
 import { validate, PostSignUpSchema } from "../../../internal/validation";
 import Boom from "@hapi/boom";
 import { send_invite } from "../../worker/mail";
@@ -48,7 +48,7 @@ export function createSignUpRoute(ctx: IAppContext): Router {
         );
       }
 
-      const code = csprng.generate(12);
+      const code = randomAlphaDigit(16);
 
       const protocol = req.protocol;
       const host = fmt("%s.%s", reqParams.siteId, ctx.config.DOMAIN);
