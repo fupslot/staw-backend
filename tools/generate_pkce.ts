@@ -9,9 +9,12 @@ const [, , code_verifier] = process.argv;
 const challenge = pkceChallenge(code_verifier);
 
 console.log(`
-  PKCE Challenge`);
+  PKCE Challenge:`);
 
 console.log(`
-  Code verifier: ${challenge.code_verifier}
-  Code challenge: ${challenge.code_challenge}
+  code_verifier (state): ${challenge.code_verifier}
+  challenge:             ${challenge.code_challenge}
+  hash:                  S256
+
+  query:                 &state=${challenge.code_verifier}&code_challenge=${challenge.code_challenge}&code_challenge_hash=S256
 `);
