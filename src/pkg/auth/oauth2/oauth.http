@@ -1,3 +1,6 @@
+# OAuth2
+
+
 # References
 #
 # https://dev-64314946.okta.com/oauth2/default/.well-known/oauth-authorization-server
@@ -5,17 +8,19 @@
 # https://oauth.net/
 # https://www.youtube.com/oktadev
 # https://oauth2simplified.com/
+# https://youtu.be/996OiexHze0
 
-GET http://john.example.net/auth/oauth/authorize?response_type=code&client_id=c0&state=xyz&redirect_uri=http%3A%2F%2F0.apps.john.example.net
+
+### OAuth2: Authorization Code + PKCE
+# 
+GET http://john.example.net/oauth2/default/v1/authorize?response_type=code&client_id=c0&redirect_uri=http%3A%2F%2Fapp.john.example.net/callback&state=eTjwpLWSZdqxw9KXBM9ra3RjW~kmeRwplXQZxyCDV23&code_challenge=bH5pfUAcSAeX7oTLlgn_Rl3Dp2JOGyGEUVYvqbiCKco&code_challenge_hash=S256
 Host: john.example.net
-Authorization: Bearer qwerty
 
+###
+POST http://john.example.net/oauth2/default/v1/token
+Content-Type: application/x-www-form-urlencoded
 
-
-
-
-
-
+grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&code=6tXJvFPj4R55NlXzVAFHz8kx1inb8jQ8THQrPO1xKsc
 
 ### Authorization Code
 #

@@ -1,4 +1,4 @@
-// import { format as fmt } from 'util'
+import { format as fmt } from "util";
 import { Router, Request } from "express";
 import Boom from "@hapi/boom";
 import { IAppContext } from "../../context";
@@ -74,41 +74,42 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
         );
       }
 
-      if (!response_type.isValid(req.query.response_type)) {
+      if (!(await response_type.isValid(req.query.response_type))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'response_type' must be 'code' or 'token'"
         );
       }
 
-      if (!client_id.isValid(req.query.client_id)) {
+      if (!(await client_id.isValid(req.query.client_id))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'client_id' is required"
         );
       }
 
-      if (!state.isValid(req.query.state)) {
+      if (!(await state.isValid(req.query.state))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'state' is required"
         );
       }
 
-      if (!scope.isValid(req.query.scope)) {
+      if (!(await scope.isValid(req.query.scope))) {
         throw Boom.badRequest("Invalid required: attribute 'scope' is invalid");
       }
 
-      if (!redirect_uri.isValid(req.query.redirect_uri)) {
+      if (!(await redirect_uri.isValid(req.query.redirect_uri))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'redirect_uri' is required"
         );
       }
 
-      if (!code_challenge.isValid(req.query.code_challenge)) {
+      if (!(await code_challenge.isValid(req.query.code_challenge))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'code_challenge' is required"
         );
       }
 
-      if (!code_challenge_hash.isValid(req.query.code_challenge_hash)) {
+      // vCodeChallengeHash
+      if (!(await code_challenge_hash.isValid(req.query.code_challenge_hash))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'code_challenge_hash'=S256 is required"
         );
@@ -127,6 +128,7 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
 
       printJSON(returnCode);
 
+      // Note: Move that to POST /token
       if (
         !pkce.returnCodeVerify(ctx.config.PKCE_PUBLIC_KEY, pkceCode, returnCode)
       ) {
@@ -137,7 +139,20 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
 
       // 2. validate query params
 
-      res.sendStatus(200);
+      const redirectUri = req.query.redirect_uri;
+      // NOTE: `redirect_uri` must be verified with an application configuration setiings
+      // if (redirect_uri !== client.redirect_uri) {
+      // Validation failed
+      // }
+
+      const redirectTo = fmt(
+        "%s?code=%s&state=%s",
+        redirectUri,
+        returnCode.value,
+        req.query.state
+      );
+
+      res.redirect(302, redirectTo);
     })
   );
 
