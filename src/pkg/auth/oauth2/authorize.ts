@@ -10,13 +10,13 @@ import {
 } from "../../../internal";
 import { urlencoded } from "../../http";
 import {
-  response_type,
-  client_id,
-  state,
-  scope,
-  redirect_uri,
-  code_challenge,
-  code_challenge_hash,
+  vResponseType,
+  vClientId,
+  vState,
+  vScope,
+  vRedirectUri,
+  vCodeChallenge,
+  vCodeChallengeHash,
 } from "../../../internal/validation";
 
 type ResponseType = "code" | "token";
@@ -70,50 +70,53 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
     wrap<AuthorizeRequest>(async (req, res) => {
       if (req.query.client_secret) {
         throw Boom.badRequest(
-          "Invalid required: attribute 'client_secret' must not be sent"
+          "Invalid required: attribute 'client_secret' must not be passed"
         );
       }
 
-      if (!(await response_type.isValid(req.query.response_type))) {
+      if (!(await vResponseType.isValid(req.query.response_type))) {
         throw Boom.badRequest(
-          "Invalid required: attribute 'response_type' must be 'code' or 'token'"
+          "Invalid required: attribute 'response_type' must be set to 'code' or 'token'"
         );
       }
 
-      if (!(await client_id.isValid(req.query.client_id))) {
+      if (!(await vClientId.isValid(req.query.client_id))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'client_id' is required"
         );
       }
 
-      if (!(await state.isValid(req.query.state))) {
+      if (!(await vState.isValid(req.query.state))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'state' is required"
         );
       }
 
-      if (!(await scope.isValid(req.query.scope))) {
+      if (!(await vScope.isValid(req.query.scope))) {
         throw Boom.badRequest("Invalid required: attribute 'scope' is invalid");
       }
 
-      if (!(await redirect_uri.isValid(req.query.redirect_uri))) {
+      if (!(await vRedirectUri.isValid(req.query.redirect_uri))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'redirect_uri' is required"
         );
       }
 
-      if (!(await code_challenge.isValid(req.query.code_challenge))) {
+      if (!(await vCodeChallenge.isValid(req.query.code_challenge))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'code_challenge' is required"
         );
       }
 
       // vCodeChallengeHash
-      if (!(await code_challenge_hash.isValid(req.query.code_challenge_hash))) {
+      if (!(await vCodeChallengeHash.isValid(req.query.code_challenge_hash))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'code_challenge_hash'=S256 is required"
         );
       }
+
+      // Error Response
+      // @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1
 
       console.log(req.query);
 

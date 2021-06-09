@@ -1,7 +1,7 @@
 import { createHash, createSign, createVerify, KeyObject } from "crypto";
 import { randomString } from "./crypto";
 
-interface PKCECode {
+export interface PKCECode {
   challenge: string;
   hash: PKCECodeChallengeHash;
 }

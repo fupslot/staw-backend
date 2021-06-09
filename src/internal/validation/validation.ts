@@ -108,11 +108,12 @@ export const InviteParamsSchema = object().shape({
   code: alphanum,
 });
 
-export const response_type = mixed().required().oneOf(["code", "token"]);
-export const client_id = vschar.required();
-export const client_secret = vschar.required();
-export const state = nqchar.required();
-export const scope = nqchar;
-export const redirect_uri = string().required().url();
-export const code_challenge = unreserved43_128.required();
-export const code_challenge_hash = mixed().required().oneOf(["S256"]);
+export const vResponseType = mixed().required().oneOf(["code", "token"]);
+export const vClientId = vschar.required();
+export const vClientSecret = vschar.required();
+export const vState = nqchar.required();
+export const vScope = nqchar;
+export const vRedirectUri = string().required().url();
+export const vCodeChallenge = unreserved43_128.required();
+export const vCodeChallengeHash = mixed().required().oneOf(["S256"]);
+export const vCode = unreserved43_128.required();
