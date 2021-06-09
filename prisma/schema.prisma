@@ -18,8 +18,9 @@ model Site {
   updated_at DateTime @updatedAt
 
   users User[]
-  clients Client[]
   invites Invite[]
+
+  oauthServers OAuth2Server[]
 }
 
 model User {
@@ -29,8 +30,18 @@ model User {
   username String @db.VarChar(100)
   email String @db.VarChar(100)
 
-  site Site @relation(fields: [site_id], references:[id])
   site_id Int
+  site Site @relation(fields: [site_id], references:[id])
+
+  profile Profile?
+}
+
+model Profile {
+  id Int @id @default(autoincrement())
+  bio String @db.VarChar()
+
+  user_id Int
+  user User @relation(fields: [user_id], references:[id])
 }
 
 model Invite {
@@ -47,14 +58,39 @@ model Invite {
   site_id Int
 }
 
-model Client {
+model OAuth2Server {
   id Int @id @default(autoincrement())
-  client_id String @db.VarChar(100) @unique
-  client_secret String @db.VarChar(100) @unique
-  callback String @db.VarChar(255)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  name String @db.VarChar(50)
+  applications OAuth2Application[]
 
   site Site @relation(fields: [site_id], references:[id])
   site_id Int
+}
+
+enum AuthType {
+  Web
+  Spa
+  Native
+}
+
+enum AuthMethod {
+  OIDC
+  // SAML
+}
+
+model OAuth2Application {
+  id Int @id @default(autoincrement())
+
+  method AuthMethod @default(OIDC)
+  type AuthType @default(Web)
+  
+  client_id String @db.VarChar(256)
+  client_secret String @db.VarChar(256)
+  redirect_uri String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  server_id Int
+  server OAuth2Server @relation(fields: [server_id], references:[id])
 }
