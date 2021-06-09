@@ -1,10 +1,5 @@
-import {
-  generateKeyPairSync,
-  createSign,
-  createVerify,
-  createPublicKey,
-  createPrivateKey,
-} from "crypto";
+import { format as fmt } from "util";
+import { generateKeyPairSync, createSign, createVerify } from "crypto";
 
 const { privateKey, publicKey } = generateKeyPairSync("ec", {
   namedCurve: "sect239k1",
@@ -28,40 +23,17 @@ verify.end();
 
 console.log(verify.verify(publicKey, signature, "base64"));
 
-console.log("\n==v Keys v==\n");
+console.log(
+  "# Public / Private keys for siging and verifying PKCE code. Keep'em in .env file\n"
+);
 
-const public_key = publicKey.export({ format: "der", type: "spki" });
-const private_key = privateKey.export({ format: "der", type: "pkcs8" });
-
-const public_key_b64 = publicKey
+const public_key = publicKey
   .export({ format: "der", type: "spki" })
   .toString("base64");
-const private_key_b64 = privateKey
+const private_key = privateKey
   .export({ format: "der", type: "pkcs8" })
   .toString("base64");
 
-console.log("public_key", public_key_b64);
-console.log("private_key", private_key_b64);
-
-const newPublicKey = createPublicKey({
-  key: public_key,
-  type: "spki",
-  format: "der",
-});
-
-const newPrivateKey = createPrivateKey({
-  key: private_key,
-  format: "der",
-  type: "pkcs8",
-});
-
-console.log("\n==v Exported Keys v==\n");
-
-console.log(
-  "public_key",
-  newPublicKey.export({ format: "der", type: "spki" }).toString("base64")
-);
-console.log(
-  "private_key",
-  newPrivateKey.export({ format: "der", type: "pkcs8" }).toString("base64")
-);
+console.log(fmt("PKCE_PUBLIC_KEY=%s", public_key));
+console.log(fmt("PKCE_PRIVATE_KEY=%s", private_key));
+console.log("\n");

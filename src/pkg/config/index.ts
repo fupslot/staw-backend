@@ -64,7 +64,8 @@ export const config: IAppConfig = {
    */
   PKCE_PUBLIC_KEY: (() => {
     if (!process.env.PKCE_PUBLIC_KEY) {
-      console.error("Missing configuration: pkce public key");
+      console.error("Missing configuration: env.PKCE_PUBLIC_KEY");
+      console.error("Run 'yarn pkce-sign' command to generate it");
       process.exit(1);
     }
 
@@ -77,7 +78,8 @@ export const config: IAppConfig = {
 
   PKCE_PRIVATE_KEY: (() => {
     if (!process.env.PKCE_PRIVATE_KEY) {
-      console.error("Missing configuration: pkce private key");
+      console.error("Error: Missing configuration: env.PKCE_PRIVATE_KEY\n");
+      console.error("Run 'yarn pkce-sign' command to generate it");
       process.exit(1);
     }
 
