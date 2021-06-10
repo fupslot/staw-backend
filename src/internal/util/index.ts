@@ -17,3 +17,15 @@ export const wrap = <RequestType = Request, ResponseType = Response>(
 export function printJSON(value: Record<string, unknown>): void {
   console.log(JSON.stringify(value, null, 2));
 }
+
+export function string2object(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch (_) {
+    return null;
+  }
+}
+
+export function object2string(record: Record<string, unknown>): string {
+  return JSON.stringify(record);
+}

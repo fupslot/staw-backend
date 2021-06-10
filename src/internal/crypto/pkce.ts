@@ -1,17 +1,18 @@
-import { createHash, createSign, createVerify, KeyObject } from "crypto";
-import { randomString } from "./crypto";
+import { createHash } from "crypto";
+import { randomString, hmac_sha256 } from "./crypto";
 
-export interface PKCECode {
+export type PKCECodeChallengeHash = "S265";
+export type PKCEStateObject = {
+  state: string;
   challenge: string;
   hash: PKCECodeChallengeHash;
-}
+};
 
-export type PKCEType = Required<PKCE>;
-export type PKCECodeChallengeHash = "S265";
+export type PKCEAuthorizationCode = string;
 
 export type PKCECodeReturn = { hash: PKCECodeChallengeHash; value: string };
 
-const unreserved_set =
+const UNRESERVED_CHARSET =
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~";
 
 function base64_urlencode(base64: string): string {
@@ -19,7 +20,7 @@ function base64_urlencode(base64: string): string {
 }
 
 function generate_verifier(): string {
-  return randomString(43, unreserved_set);
+  return randomString(43, UNRESERVED_CHARSET);
 }
 
 function generate_challenge(code: string): string {
@@ -42,42 +43,20 @@ export function pkceChallenge(code_verifier?: string): {
   };
 }
 
-export function returnCode(
-  privateKey: KeyObject,
-  pkce: PKCECode
-): PKCECodeReturn {
-  const dataToSign = `${pkce.challenge}:${pkce.hash}`;
-
-  const sign = createSign("SHA256");
-  sign.write(dataToSign);
-  sign.end();
-
-  const value = sign.sign(privateKey, "base64");
-
-  return { value, hash: pkce.hash };
-}
-
-export function returnCodeVerify(
-  publicKey: KeyObject,
-  pkceCode: PKCECode,
-  code: PKCECodeReturn
-): boolean {
-  const dataToSign = `${pkceCode.challenge}:${pkceCode.hash}`;
-
-  const verify = createVerify("SHA256");
-  verify.write(dataToSign);
-  verify.end();
-  return verify.verify(publicKey, code.value, "base64");
+export function createAuthorizationCode(
+  state: PKCEStateObject
+): PKCEAuthorizationCode {
+  return base64_urlencode(
+    hmac_sha256(`${state.challenge}:${state.hash}`, "base64")
+  );
 }
 
 interface PKCE {
   pkceChallenge: typeof pkceChallenge;
-  returnCode: typeof returnCode;
-  returnCodeVerify: typeof returnCodeVerify;
+  createAuthorizationCode: typeof createAuthorizationCode;
 }
 
 export const pkce = {
   pkceChallenge: pkceChallenge,
-  returnCode: returnCode,
-  returnCodeVerify: returnCodeVerify,
+  createAuthorizationCode: createAuthorizationCode,
 } as PKCE;

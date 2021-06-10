@@ -1,8 +1,14 @@
 import Boom from "@hapi/boom";
 import { Router, Request } from "express";
-import { wrap, pkce, PKCECodeReturn, PKCECode } from "../../../internal";
+import { wrap, pkce } from "../../../internal";
 import { IAppContext } from "../../context";
-import { vClientId, vRedirectUri, vCode } from "../../../internal/validation";
+import {
+  vClientId,
+  vRedirectUri,
+  vCode,
+  vState,
+  vClientSecret,
+} from "../../../internal/validation";
 import {
   urlencoded,
   x_form_www_urlencoded_required,
@@ -14,9 +20,11 @@ type GrantType = "authorization_code";
 
 interface RequestParams {
   grant_type: GrantType;
+  code_verifier: string;
   code: string;
   redirect_uri: string;
   client_id: string;
+  client_secret: string;
 }
 
 type RequestParamsType = Required<RequestParams>;
@@ -38,6 +46,12 @@ export function createTokenRoute(ctx: IAppContext): Router {
         );
       }
 
+      if (!(await vState.isValid(req.body.code_verifier))) {
+        throw Boom.badRequest(
+          "Invalid required: attribute 'code_verifier' invalid"
+        );
+      }
+
       if (!(await vCode.isValid(req.body.code))) {
         throw Boom.badRequest("Invalid required: attribute 'code' invalid");
       }
@@ -51,6 +65,12 @@ export function createTokenRoute(ctx: IAppContext): Router {
       if (!(await vClientId.isValid(req.body.client_id))) {
         throw Boom.badRequest(
           "Invalid required: attribute 'client_id' invalid"
+        );
+      }
+
+      if (!(await vClientSecret.isValid(req.body.client_secret))) {
+        throw Boom.badRequest(
+          "Invalid required: attribute 'client_secret' invalid"
         );
       }
 
@@ -71,25 +91,21 @@ export function createTokenRoute(ctx: IAppContext): Router {
         );
       }
 
-      const pkceReturnCode: PKCECodeReturn = {
-        value: req.body.code,
-        hash: "S265",
-      };
+      const pkceStateObject = await ctx.cache.oauth.getState(
+        req.body.code_verifier
+      );
 
-      const pkceCode: PKCECode = {
-        challenge: "",
-        hash: "S265",
-      };
-
-      if (
-        !pkce.returnCodeVerify(
-          ctx.config.PKCE_PUBLIC_KEY,
-          pkceCode,
-          pkceReturnCode
-        )
-      ) {
+      if (!pkceStateObject) {
         throw Boom.badRequest(
-          "Invalid required: attribute 'code' not verified"
+          "Invalid required: attribute 'code_verifier' invalid"
+        );
+      }
+
+      const authorizationCode = pkce.createAuthorizationCode(pkceStateObject);
+
+      if (req.body.code !== authorizationCode) {
+        throw Boom.badRequest(
+          "Invalid required: attribute 'authorization_code' not verified"
         );
       }
 

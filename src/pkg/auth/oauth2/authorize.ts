@@ -6,6 +6,7 @@ import {
   wrap,
   pkce,
   printJSON,
+  PKCEStateObject,
   PKCECodeChallengeHash,
 } from "../../../internal";
 import { urlencoded, subdomain_required, OAuthParamsType } from "../../http";
@@ -117,27 +118,19 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
 
       console.log(req.query);
 
-      const pkceCode = {
+      const pkceStateObject: PKCEStateObject = {
+        state: req.query.state,
         challenge: req.query.code_challenge,
         hash: req.query.code_challenge_hash,
       };
 
-      // validationResult.response_type == "code";
-      // 1. generate code
-      const returnCode = pkce.returnCode(ctx.config.PKCE_PRIVATE_KEY, pkceCode);
+      printJSON(pkceStateObject);
 
-      printJSON(returnCode);
+      // derive authorization code from pkce state object
+      const authorizationCode = pkce.createAuthorizationCode(pkceStateObject);
+      await ctx.cache.oauth.setState(pkceStateObject);
 
-      // Note: Move that to POST /token
-      if (
-        !pkce.returnCodeVerify(ctx.config.PKCE_PUBLIC_KEY, pkceCode, returnCode)
-      ) {
-        console.log("bad code");
-      }
-
-      // req.params.authorizationServer;
-
-      // 2. validate query params
+      printJSON({ authorizationCode });
 
       const redirectUri = req.query.redirect_uri;
       // NOTE: `redirect_uri` must be verified with an application configuration setiings
@@ -148,7 +141,7 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
       const redirectTo = fmt(
         "%s?code=%s&state=%s",
         redirectUri,
-        returnCode.value,
+        authorizationCode,
         req.query.state
       );
 

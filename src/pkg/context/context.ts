@@ -1,5 +1,5 @@
 import * as os from "os";
-import { RedisAsync } from "../cache";
+import { OAuthStateStore } from "../cache";
 import { config, IAppConfig } from "../config";
 import { worker } from "../worker";
 import { PrismaClient } from "@prisma/client";
@@ -7,7 +7,7 @@ import { PrismaClient } from "@prisma/client";
 export const prisma = new PrismaClient();
 
 export interface IAppCache {
-  site: RedisAsync;
+  oauth: OAuthStateStore;
 }
 
 export interface IAppContext {

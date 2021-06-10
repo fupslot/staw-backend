@@ -1,34 +1,38 @@
-import util from "util";
-import { createClient, RedisClient } from "redis";
-import { config } from "../config";
+import Redis from "ioredis";
+import { object2string, string2object, PKCEStateObject } from "../../internal";
 
-export type CreateCacheHandlerOptions = {
-  db: ICacheType;
-};
+class GeneralStore {
+  private _store: Redis.Redis;
 
-export enum ICacheType {
-  Site = 1,
+  constructor(url: string) {
+    this._store = new Redis(url);
+  }
+
+  get store() {
+    return this._store;
+  }
+
+  close() {
+    this._store.disconnect();
+  }
 }
 
-export interface RedisAsync {
-  get(key: string): Promise<string | null>;
-  set: (key: string, value: string) => Promise<unknown>;
-  setex: (key: string, seconds: number, value: string) => Promise<string>;
+export class OAuthStateStore extends GeneralStore {
+  /**
+   * Store 'state' value with TTL 60 sec
+   * @param code
+   */
+  async setState(code: PKCEStateObject): Promise<"OK"> {
+    return this.store.setex(code.state, 30, object2string(code));
+  }
+
+  async getState(state: string): Promise<PKCEStateObject | null> {
+    const data = await this.store.get(state);
+    await this.store.del(state);
+    if (data) {
+      return string2object(data) as PKCEStateObject;
+    }
+
+    return null;
+  }
 }
-
-export interface CreateCacheHandler {
-  (options: CreateCacheHandlerOptions): RedisAsync;
-}
-
-export const createCache: CreateCacheHandler = ({ db = 0 }): RedisAsync => {
-  const client: RedisClient = createClient({
-    db,
-    url: config.CACHE_URL,
-  });
-
-  return {
-    get: util.promisify(client.get.bind(client)),
-    set: util.promisify(client.set.bind(client)),
-    setex: util.promisify(client.setex.bind(client)),
-  };
-};

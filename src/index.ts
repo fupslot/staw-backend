@@ -1,7 +1,7 @@
 import { createLogger } from "./pkg/logger";
 import { createHttpServer } from "./pkg/http";
 import { createContext, IAppCache } from "./pkg/context";
-import { createCache, ICacheType } from "./pkg/cache";
+import { OAuthStateStore } from "./pkg/cache";
 import { config } from "./pkg/config";
 
 const logger = createLogger();
@@ -12,8 +12,8 @@ const logger = createLogger();
  * @returns void
  */
 export const main = async (): Promise<void> => {
-  const cache: IAppCache = {
-    site: createCache({ db: ICacheType.Site }),
+  const appCache: IAppCache = {
+    oauth: new OAuthStateStore(`${config.CACHE_URL}/1`),
   };
 
   // Initializing email service
@@ -25,7 +25,7 @@ export const main = async (): Promise<void> => {
   //
   // The context carries references to modules and data structures
   // across API boundaries
-  const context = await createContext({ cache });
+  const context = await createContext({ cache: appCache });
 
   // Initializing http server and bind it to a localhost
   //

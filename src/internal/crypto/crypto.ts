@@ -1,4 +1,4 @@
-import { randomBytes } from "crypto";
+import { randomBytes, createHmac } from "crypto";
 
 const alpha_digit_set = "0123456789abcdefghijklmnopqrstuvwxyz";
 
@@ -22,4 +22,11 @@ export function randomString(size: number, mask: string): string {
 
 export function randomAlphaDigit(size = 16): string {
   return randomString(size, alpha_digit_set);
+}
+
+export function hmac_sha256(value: string, encoding: BufferEncoding): string {
+  return createHmac("SHA256", "secret")
+    .update(value)
+    .digest()
+    .toString(encoding);
 }
