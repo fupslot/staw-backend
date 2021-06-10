@@ -11,9 +11,9 @@ import Boom from "@hapi/boom";
 
 export function subdomain(ctx: IAppContext): RequestHandler {
   return wrap(async (req: Request, res, next) => {
-    const siteId = req.subdomains.shift() || null;
+    const siteAlias = req.subdomains.shift() || null;
 
-    req.siteId = siteId;
+    req.siteAlias = siteAlias;
 
     const protocol = req.protocol;
     const host = req.get("host");
@@ -24,10 +24,10 @@ export function subdomain(ctx: IAppContext): RequestHandler {
       INVITE_FAIL_URL: fmt("%s://%s/invite/fail%s", protocol, host),
     };
 
-    if (typeof siteId === "string") {
+    if (typeof siteAlias === "string") {
       // Note: Should probably cache {site} object. LRU?
       req.site = await ctx.store.site.findUnique({
-        where: { alias: siteId },
+        where: { alias: siteAlias },
       });
     }
 

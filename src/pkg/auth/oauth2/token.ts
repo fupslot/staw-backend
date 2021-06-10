@@ -3,7 +3,12 @@ import { Router, Request } from "express";
 import { wrap, pkce, PKCECodeReturn, PKCECode } from "../../../internal";
 import { IAppContext } from "../../context";
 import { vClientId, vRedirectUri, vCode } from "../../../internal/validation";
-import { urlencoded, x_form_www_urlencoded_required } from "../../http";
+import {
+  urlencoded,
+  x_form_www_urlencoded_required,
+  subdomain_required,
+  OAuthParamsType,
+} from "../../http";
 
 type GrantType = "authorization_code";
 
@@ -16,7 +21,7 @@ interface RequestParams {
 
 type RequestParamsType = Required<RequestParams>;
 
-type TokenRequest = Request<unknown, unknown, RequestParamsType>;
+type TokenRequest = Request<OAuthParamsType, unknown, RequestParamsType>;
 
 export function createTokenRoute(ctx: IAppContext): Router {
   const token = Router();
@@ -24,6 +29,7 @@ export function createTokenRoute(ctx: IAppContext): Router {
   token.post(
     "/v1/token",
     urlencoded(),
+    subdomain_required(),
     x_form_www_urlencoded_required(),
     wrap<TokenRequest>(async (req, res) => {
       if (req.body.grant_type !== "authorization_code") {
@@ -43,6 +49,23 @@ export function createTokenRoute(ctx: IAppContext): Router {
       }
 
       if (!(await vClientId.isValid(req.body.client_id))) {
+        throw Boom.badRequest(
+          "Invalid required: attribute 'client_id' invalid"
+        );
+      }
+
+      const oauthServer = await ctx.store.oAuth2Server.findFirst({
+        where: {
+          site_id: req.site?.id,
+          name: req.params.authz,
+        },
+      });
+
+      if (!oauthServer) {
+        /**
+         * MUST BE 'unauthorized_client'
+         * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1
+         */
         throw Boom.badRequest(
           "Invalid required: attribute 'client_id' invalid"
         );

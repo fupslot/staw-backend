@@ -8,7 +8,7 @@ import {
   printJSON,
   PKCECodeChallengeHash,
 } from "../../../internal";
-import { urlencoded } from "../../http";
+import { urlencoded, subdomain_required, OAuthParamsType } from "../../http";
 import {
   vResponseType,
   vClientId,
@@ -20,9 +20,6 @@ import {
 } from "../../../internal/validation";
 
 type ResponseType = "code" | "token";
-interface RequestParams {
-  authz: string;
-}
 
 interface RequestQueryParams {
   /**
@@ -42,10 +39,9 @@ interface RequestQueryParams {
   code_challenge_hash: PKCECodeChallengeHash;
 }
 
-type RequestParamsType = Readonly<Required<RequestParams>>;
 type RequestQueryParamsType = Readonly<RequestQueryParams>;
 type AuthorizeRequest = Request<
-  RequestParamsType,
+  OAuthParamsType,
   unknown,
   unknown,
   RequestQueryParamsType
@@ -67,6 +63,7 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
   authorize.get(
     "/v1/authorize",
     urlencoded(),
+    subdomain_required(),
     wrap<AuthorizeRequest>(async (req, res) => {
       if (req.query.client_secret) {
         throw Boom.badRequest(

@@ -9,7 +9,7 @@ interface CallbackURL {
 declare global {
   namespace Express {
     interface Request {
-      siteId: string | null;
+      siteAlias: string | null;
       site: Site | null;
       user: User | null;
       endpoint: CallbackURL;
