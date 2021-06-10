@@ -13,14 +13,14 @@
 
 ### OAuth2: Authorization Code + PKCE
 # 
-GET http://local.example.net/oauth2/default/v1/authorize?response_type=code&client_id=c0&redirect_uri=http%3A%2F%2Fapp.john.example.net%2Fcallback&state=eTjwpLWSZdqxw9KXBM9ra3RjW~kmeRwplXQZxyCDV23&code_challenge=bH5pfUAcSAeX7oTLlgn_Rl3Dp2JOGyGEUVYvqbiCKco&code_challenge_hash=S256
+GET http://local.example.net/oauth2/default/v1/authorize?response_type=code&client_id=c0&redirect_uri=http%3A%2F%2Fapp.john.example.net%2Fcallback&state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN&code_challenge=bacs7nc_Ri_ub8618ZiU7IeCTTMyuT-JQ1PYfeJvBhw&code_challenge_hash=S256
 Host: john.example.net
 
 ### OAuth2: Token
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=authorization_code&redirect_uri=http%3A%2F%2Fapp.john.example.net%2Fcallback&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=eTjwpLWSZdqxw9KXBM9ra3RjW~kmeRwplXQZxyCDV23&code=_zY1OwoxkFbmkXObfjAKA9xws2myOm6R8KSvcOwt4JE
+grant_type=authorization_code&redirect_uri=http%3A%2F%2Fapp.john.example.net%2Fcallback&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN&code=0uGNs0BFKFQg5d3Rq7e6TUUCJIYjKOsza1hQTIvpns8
 
 
 

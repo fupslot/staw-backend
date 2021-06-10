@@ -1,5 +1,3 @@
-import { createPublicKey, createPrivateKey, KeyObject } from "crypto";
-
 const boolTrue = ["True", "true", "1"];
 
 export type IAppConfig = {
@@ -12,8 +10,7 @@ export type IAppConfig = {
   DATABASE_URL: string;
   SESSION_NAME: string;
   SESSION_SECRET: string;
-  PKCE_PUBLIC_KEY: KeyObject;
-  PKCE_PRIVATE_KEY: KeyObject;
+  PKCE_AUTHORIZATION_CODE_SECRET: string;
 };
 
 export const config: IAppConfig = {
@@ -60,33 +57,18 @@ export const config: IAppConfig = {
   SESSION_SECRET: process.env.SESSION_SECRET || "secret",
 
   /**
-   * PKCE public / private keys
+   * PKCE secret
    */
-  PKCE_PUBLIC_KEY: (() => {
-    if (!process.env.PKCE_PUBLIC_KEY) {
-      console.error("Missing configuration: env.PKCE_PUBLIC_KEY");
+
+  PKCE_AUTHORIZATION_CODE_SECRET: (() => {
+    if (!process.env.PKCE_AUTHORIZATION_CODE_SECRET) {
+      console.error(
+        "Error: Missing configuration: env.PKCE_AUTHORIZATION_CODE_SECRET\n"
+      );
       console.error("Run 'yarn pkce-sign' command to generate it");
       process.exit(1);
     }
 
-    return createPublicKey({
-      key: Buffer.from(process.env.PKCE_PUBLIC_KEY, "base64"),
-      type: "spki",
-      format: "der",
-    });
-  })(),
-
-  PKCE_PRIVATE_KEY: (() => {
-    if (!process.env.PKCE_PRIVATE_KEY) {
-      console.error("Error: Missing configuration: env.PKCE_PRIVATE_KEY\n");
-      console.error("Run 'yarn pkce-sign' command to generate it");
-      process.exit(1);
-    }
-
-    return createPrivateKey({
-      key: Buffer.from(process.env.PKCE_PRIVATE_KEY, "base64"),
-      format: "der",
-      type: "pkcs8",
-    });
+    return process.env.PKCE_AUTHORIZATION_CODE_SECRET;
   })(),
 };

@@ -101,7 +101,10 @@ export function createTokenRoute(ctx: IAppContext): Router {
         );
       }
 
-      const authorizationCode = pkce.createAuthorizationCode(pkceStateObject);
+      const authorizationCode = pkce.createAuthorizationCode(
+        pkceStateObject,
+        ctx.config.PKCE_AUTHORIZATION_CODE_SECRET
+      );
 
       if (req.body.code !== authorizationCode) {
         throw Boom.badRequest(

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "pkce-sign": "node -r ts-node/register ./tools/generate_pkce_sign.ts",
+    "pkce-secret": "node -r ts-node/register ./tools/generate_pkce_secret.ts",
     "pkce-challenge": "node -r ts-node/register ./tools/generate_pkce.ts",
     "debug": "export $(cat .env | xargs) && ./node_modules/.bin/nodemon --delay=1500ms --legacy-watch --exec \"node -r ts-node/register --inspect=0.0.0.0:9999 ./src/index.ts\"",
     "migrate": "./node_modules/.bin/prisma migrate dev",

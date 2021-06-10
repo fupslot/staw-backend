@@ -44,10 +44,11 @@ export function pkceChallenge(code_verifier?: string): {
 }
 
 export function createAuthorizationCode(
-  state: PKCEStateObject
+  state: PKCEStateObject,
+  secret: string
 ): PKCEAuthorizationCode {
   return base64_urlencode(
-    hmac_sha256(`${state.challenge}:${state.hash}`, "base64")
+    hmac_sha256(`${state.challenge}:${state.hash}`, secret, "base64")
   );
 }
 

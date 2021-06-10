@@ -127,7 +127,10 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
       printJSON(pkceStateObject);
 
       // derive authorization code from pkce state object
-      const authorizationCode = pkce.createAuthorizationCode(pkceStateObject);
+      const authorizationCode = pkce.createAuthorizationCode(
+        pkceStateObject,
+        ctx.config.PKCE_AUTHORIZATION_CODE_SECRET
+      );
       await ctx.cache.oauth.setState(pkceStateObject);
 
       printJSON({ authorizationCode });
