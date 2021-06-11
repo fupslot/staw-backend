@@ -6,8 +6,10 @@ import { createTokenRoute } from "./token";
 export function createOAuth2Route(ctx: IAppContext): Router {
   const oauth = Router();
 
-  oauth.use("/:authz", createAuthoriseRoute(ctx));
-  oauth.use("/:authz", createTokenRoute(ctx));
+  // build oauth context object
+
+  oauth.use("/:serverAlias", createAuthoriseRoute(ctx));
+  oauth.use("/:serverAlias", createTokenRoute(ctx));
 
   return oauth;
 }
