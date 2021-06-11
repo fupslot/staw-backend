@@ -19,6 +19,8 @@ import {
   vCodeChallenge,
   vCodeChallengeHash,
 } from "../../../internal/validation";
+import { AuthResponseError } from "./error-response";
+import { AuthorizationResponse } from "./authorization-response";
 
 type ResponseType = "code" | "token";
 
@@ -67,50 +69,35 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
     subdomain_required(),
     wrap<AuthorizeRequest>(async (req, res) => {
       if (req.query.client_secret) {
-        throw Boom.badRequest(
-          "Invalid required: attribute 'client_secret' must not be passed"
-        );
+        throw new AuthResponseError("invalid_request", req.query.state);
       }
 
       if (!(await vResponseType.isValid(req.query.response_type))) {
-        throw Boom.badRequest(
-          "Invalid required: attribute 'response_type' must be set to 'code' or 'token'"
-        );
+        throw new AuthResponseError("invalid_request", req.query.state);
       }
 
       if (!(await vClientId.isValid(req.query.client_id))) {
-        throw Boom.badRequest(
-          "Invalid required: attribute 'client_id' is required"
-        );
+        throw new AuthResponseError("invalid_request", req.query.state);
       }
 
       if (!(await vState.isValid(req.query.state))) {
-        throw Boom.badRequest(
-          "Invalid required: attribute 'state' is required"
-        );
+        throw new AuthResponseError("invalid_request", req.query.state);
       }
 
       if (!(await vScope.isValid(req.query.scope))) {
-        throw Boom.badRequest("Invalid required: attribute 'scope' is invalid");
+        throw new AuthResponseError("invalid_request", req.query.state);
       }
 
       if (!(await vRedirectUri.isValid(req.query.redirect_uri))) {
-        throw Boom.badRequest(
-          "Invalid required: attribute 'redirect_uri' is required"
-        );
+        throw new AuthResponseError("invalid_request", req.query.state);
       }
 
       if (!(await vCodeChallenge.isValid(req.query.code_challenge))) {
-        throw Boom.badRequest(
-          "Invalid required: attribute 'code_challenge' is required"
-        );
+        throw new AuthResponseError("invalid_request", req.query.state);
       }
 
-      // vCodeChallengeHash
       if (!(await vCodeChallengeHash.isValid(req.query.code_challenge_hash))) {
-        throw Boom.badRequest(
-          "Invalid required: attribute 'code_challenge_hash'=S256 is required"
-        );
+        throw new AuthResponseError("invalid_request", req.query.state);
       }
 
       // Error Response
@@ -141,14 +128,17 @@ export function createAuthoriseRoute(ctx: IAppContext): Router {
       // Validation failed
       // }
 
-      const redirectTo = fmt(
-        "%s?code=%s&state=%s",
-        redirectUri,
+      // todo: must be cool if error handler for oauth would be different from the rest of application
+
+      const response = new AuthorizationResponse(
         authorizationCode,
         req.query.state
       );
 
-      res.redirect(302, redirectTo);
+      res.redirect(
+        response.status,
+        response.getRedirectUrl(req.query.redirect_uri)
+      );
     })
   );
 
