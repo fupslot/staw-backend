@@ -4,7 +4,7 @@ export type IAppConfig = {
   DOMAIN: string;
   PORT: number;
   STORE_LOGGER: boolean;
-  CACHE_URL: string;
+  CACHE_OAUTH_STATE_URL: string;
   MAIL_APIKEY: string;
   MAIL_NOREPLY: string;
   DATABASE_URL: string;
@@ -20,7 +20,8 @@ export const config: IAppConfig = {
 
   STORE_LOGGER: boolTrue.includes(process.env.STORE_LOGGER || "") || false,
 
-  CACHE_URL: process.env.CACHE_URL || "redis://rd0.example.net:6379",
+  CACHE_OAUTH_STATE_URL:
+    process.env.CACHE_OAUTH_STATE_URL || "redis://rd0.example.net:6379/1",
 
   MAIL_APIKEY:
     process.env.MAIL_APIKEY ||

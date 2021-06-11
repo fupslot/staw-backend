@@ -13,7 +13,7 @@ const logger = createLogger();
  */
 export const main = async (): Promise<void> => {
   const appCache: IAppCache = {
-    oauth: new OAuthStateStore(`${config.CACHE_URL}/1`),
+    oauth: new OAuthStateStore(config.CACHE_OAUTH_STATE_URL),
   };
 
   // Initializing email service
