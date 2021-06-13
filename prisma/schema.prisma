@@ -65,12 +65,20 @@ model OAuth2Server {
 
   site Site @relation(fields: [site_id], references:[id])
   site_id Int
+
+  // todo: @index([name, site_id])
 }
 
 enum AuthType {
   Web
   Spa
   Native
+}
+
+enum GrantTypes {
+  authorization_code
+  client_credentials
+  password
 }
 
 enum AuthMethod {
@@ -86,11 +94,15 @@ model OAuth2Application {
   
   client_id String @db.VarChar(256)
   client_secret String @db.VarChar(256)
-  redirect_uri String
+  redirect_uris String[]
+  grants GrantTypes[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   server_id Int
   server OAuth2Server @relation(fields: [server_id], references:[id])
+
+  // todo: @index([client_id, server_id])
+  // todo: @index([client_id, client_secret])
 }

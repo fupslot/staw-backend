@@ -22,7 +22,7 @@ export class OAuthStateStore extends GeneralStore {
    * Store 'state' value with TTL 60 sec
    * @param code
    */
-  async setState(code: PKCEStateObject): Promise<"OK"> {
+  async saveState(code: PKCEStateObject): Promise<"OK"> {
     return this.store.setex(code.state, 30, object2string(code));
   }
 

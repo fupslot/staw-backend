@@ -1,4 +1,10 @@
 import { format as fmt } from "util";
+
+export interface FallbackURI {
+  SIGN_IN: string;
+  SITE_BASE: string;
+}
+
 export class AuthorizationResponse {
   code: string;
   state: string;
@@ -9,7 +15,7 @@ export class AuthorizationResponse {
     this.status = 302;
   }
 
-  getRedirectUrl(callback_uri: string): string {
-    return fmt("%s?code=%s&state=%s", callback_uri, this.code, this.state);
+  getRedirectUrl(callbackURI: string): string {
+    return fmt("%s?code=%s&state=%s", callbackURI, this.code, this.state);
   }
 }

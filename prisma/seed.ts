@@ -15,7 +15,8 @@ async function main() {
             create: {
               client_id: "ZeacaeM0Ouy6ieceiv1xa2roo5mohch8",
               client_secret: "oojiebitaPhah3southikePeepaghah7xi5bi0iceeY1Inu7",
-              redirect_uri: "http://local.dev/callback",
+              redirect_uris: ["http://local.dev/callback"],
+              grants: ["authorization_code"],
             },
           },
         },

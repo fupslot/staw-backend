@@ -1,11 +1,12 @@
 import express from "express";
 import session from "express-session";
 import cookieParser from "cookie-parser";
+
 import { IAppContext } from "../context";
-import { createApiRoute } from "../api";
-import { subdomain } from "./middleware";
+// import { createApiRoute } from "../api";
+// import { subdomain } from "./middleware";
 import { errorHandler } from "./errorHandler";
-import { createAuthRoute } from "../auth";
+import { OAuth2 } from "../oauth2";
 
 interface HTTPServer {
   listen: (port: number, cb: () => void) => void;
@@ -35,7 +36,7 @@ export const createHttpServer = (
   );
 
   // Define global middlewares
-  app.use(subdomain(context));
+  // app.use(subdomain(context));
 
   /**
    * GET /health
@@ -47,8 +48,14 @@ export const createHttpServer = (
    */
   app.get("/health", (req, res) => res.sendStatus(200)); // simple healthcheck
 
-  app.use("/api/v1", createApiRoute(context));
-  app.use("/oauth2", createAuthRoute(context));
+  // todo: implement API as child express application
+  // app.use("/api/v1", createApiRoute(context));
+
+  /**
+   * Initializing OAuth2 endpoints
+   */
+  const oauth2 = OAuth2(context);
+  app.use(oauth2);
 
   app.use(errorHandler());
 

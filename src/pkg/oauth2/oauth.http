@@ -13,8 +13,7 @@
 
 ### OAuth2: Authorization Code + PKCE
 # 
-GET http://local.example.net/oauth2/default/v1/authorize?response_type=code&client_id=c0&redirect_uri=http%3A%2F%2Fapp.john.example.net%2Fcallback&state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN&code_challenge=bacs7nc_Ri_ub8618ZiU7IeCTTMyuT-JQ1PYfeJvBhw&code_challenge_hash=S256
-Host: john.example.net
+GET http://local.example.net/oauth2/default/v1/authorize?response_type=code&client_id=ZeacaeM0Ouy6ieceiv1xa2roo5mohch8&redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback&state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN&code_challenge=bacs7nc_Ri_ub8618ZiU7IeCTTMyuT-JQ1PYfeJvBhw&code_challenge_hash=S256
 
 ### OAuth2: Token
 POST http://local.example.net/oauth2/default/v1/token

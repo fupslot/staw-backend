@@ -9,8 +9,9 @@ interface CallbackURL {
 declare global {
   namespace Express {
     interface Request {
-      siteAlias: string | null;
-      site: Site | null;
+      subdomain: string;
+      siteAlias: string;
+      site: Site;
       user: User | null;
       endpoint: CallbackURL;
     }

@@ -1,15 +1,15 @@
 import { Request } from "express";
 import Boom from "@hapi/boom";
-import { OAuthParamsType } from "./authorization-request";
+import { OAuthParamsType } from "./authorization/authorization-request";
 import {
   vClientId,
   vRedirectUri,
   vCode,
   vState,
   vClientSecret,
-} from "../../../internal/validation";
+} from "../../internal/validation";
 
-type GrantType = "authorization_code";
+type GrantType = "authorization_code" | "client_credentials" | "password";
 
 interface RequestParams {
   grant_type: GrantType;

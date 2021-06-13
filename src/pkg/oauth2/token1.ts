@@ -1,13 +1,13 @@
 import Boom from "@hapi/boom";
 import { Router } from "express";
-import { wrap, pkce } from "../../../internal";
-import { IAppContext } from "../../context";
+import { wrap, pkce } from "../../internal";
+import { IAppContext } from "../context";
 
 import {
   urlencoded,
   x_form_www_urlencoded_required,
   subdomain_required,
-} from "../../http";
+} from "../http";
 
 import { TokenRequest, Token } from "./token-request";
 

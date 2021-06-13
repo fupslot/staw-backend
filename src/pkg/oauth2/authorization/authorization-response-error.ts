@@ -8,7 +8,7 @@ type ErrorMessageType =
   | "server_error"
   | "temporarily_unavailable";
 
-export class AuthResponseError extends Error {
+export class AuthorizationResponseError extends Error {
   error: ErrorMessageType;
   error_description?: string;
   error_uri?: string;
