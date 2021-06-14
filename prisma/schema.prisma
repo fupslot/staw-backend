@@ -12,33 +12,86 @@ generator client {
 
 model Site {
   id Int @id @default(autoincrement())
-  display_name String @db.VarChar(100) @unique 
+
+  // Organization legal name. The name will be displayed to the end-user
+  display_name String @db.VarChar(150)
+  
+  // Organization subdomain name. This name will be part on the web url
+  // Example: https://[soft-drink].example.net
   alias String @db.VarChar(32) @unique
+  
   created_at DateTime @default(now())
+  
   updated_at DateTime @updatedAt
 
   users User[]
+  
   invites Invite[]
 
-  oauthServers OAuth2Server[]
+  // Array of OAuth 2.0 servers that managed by the organization. At least
+  // one must be present with the name "default" for each organization.
+  oauth_servers OAuth2Server[]
+
+  // Array of OAuth 2.0 clients managed by the organization. At least one client
+  // must be registered and assigned to the default server.
+  oauth_clients OAuth2Client[]
 }
 
 model User {
   id Int @id @default(autoincrement())
+
+  // String containing the account name, usually consists of values 'first_name'
+  // and 'last_name' separated by [space].
+  display_name String @db.VarChar(200)
+
   first_name String @db.VarChar(100)
+  
   last_name String @db.VarChar(100)
+  
   username String @db.VarChar(100)
+  
   email String @db.VarChar(100)
+
+  // This indicates whether the end-user's email is verified or not. Usually 
+  // done via the invitation email.
+  email_verified Boolean @default(false)
+  
+  // The date that indicates when the end-user's email was verified.
+  email_verified_at DateTime
+
+  // True/False statement indicates whether the end-user account is locked or not
+  account_locked Boolean @default(false)
+
+  // The date that indicates when the end-user account was blocked.
+  account_locked_at DateTime
+
+  // When 'account_locked' is set to 'True' this string might contain
+  // an explanation (reason) of the blockage
+  account_locked_reason String?
+
+  created_at DateTime @default(now())
+
+  updated_at DateTime @updatedAt
 
   site_id Int
   site Site @relation(fields: [site_id], references:[id])
 
   profile Profile?
+
+  @@index([site_id, email])
+  @@index([site_id, username])
 }
 
 model Profile {
   id Int @id @default(autoincrement())
-  bio String @db.VarChar()
+
+  // The end-user job title string
+  job_title String?
+
+  // The hashed value of an email address
+  // md5( strtolower( trim( "MyEmailAddress@example.com " ) ) )
+  // @see https://en.gravatar.com/site/implement/hash/
+  gravatar_avatar_hash String
 
   user_id Int
   user User @relation(fields: [user_id], references:[id])
@@ -46,12 +99,23 @@ model Profile {
 
 model Invite {
   id Int @id @default(autoincrement())
+
   code String @db.VarChar(100) @unique
+  
+  first_name String @db.VarChar(100)
+  
+  last_name String @db.VarChar(100)
+
   email String @db.VarChar(100)
+  
   active Boolean @db.Boolean @default(true)
+  
   invite_uri String @db.VarChar()
+  
   expire_at DateTime
+  
   created_at DateTime @default(now())
+  
   updated_at DateTime @updatedAt
 
   site Site @relation(fields: [site_id], references: [id])
@@ -59,14 +123,19 @@ model Invite {
 }
 
 model OAuth2Server {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(50)
-  applications OAuth2Application[]
+  id String @id @default(cuid())
+  
+  alias String @db.VarChar(50)
+  
+  // Array of OAuth 2.0 clients that subject to the OAuth 2.0 server. The clients
+  // will shares common entities that belong to that server,
+  // such as: scopes, users etc.
+  clients OAuth2Client[]
 
   site Site @relation(fields: [site_id], references:[id])
   site_id Int
 
-  // todo: @index([name, site_id])
+  @@index([site_id, alias])
 }
 
 enum AuthType {
@@ -76,9 +145,25 @@ enum AuthType {
 }
 
 enum GrantTypes {
+  // The authorization code grant type
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-4.1
   authorization_code
+
+  // The client credentials grant type
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-4.4
   client_credentials
+
+  // The implicit grant type
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-4.2
+  implicit
+
+  // The resource owner password credentials grant type
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-4.3
   password
+
+  // The refresh token grant type
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-6
+  refresh_token
 }
 
 enum AuthMethod {
@@ -86,23 +171,127 @@ enum AuthMethod {
   // SAML
 }
 
-model OAuth2Application {
-  id Int @id @default(autoincrement())
+enum TokenAuthMethod {
+  // The client is a public client, and does not have a client secret
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-2.1
+  none
+
+  // The client uses the HTTP POST parameters
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-2.3.1
+  client_secret_post
+
+  // The client uses HTTP Basic parameters
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-2.3.1
+  client_secret_basic
+}
+
+enum ResponseType {
+  // The authorization code response type
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-4.1
+  code
+  
+  // The implicit response type
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-4.2
+  token
+}
+
+// OAuth 2.0 Dynamic Client Registration Protocol
+// 
+// Client Metadata
+// 
+// @see https://datatracker.ietf.org/doc/html/rfc7591#section-2
+model OAuth2Client {
+  // The client's unique identifier
+  id String @id @default(cuid())
 
   method AuthMethod @default(OIDC)
+
   type AuthType @default(Web)
-  
-  client_id String @db.VarChar(256)
+
+  // Cryptographically secure pseudorandom string, the client's secret
+  // ---------------------------------------------------------------------------
+  // Note: Storing sensitive data within the database not a good idea, it's done 
+  //       this way to simplify the development process, but for the production
+  //       consider to use a scure key-value store 
   client_secret String @db.VarChar(256)
+ 
+  // Array of redirection URI strings for use in redirect-based flows
+  // such as the authorization code and implicit flows
   redirect_uris String[]
-  grants GrantTypes[]
+
+  // String indicator of the requested authentication method for the token endpoint
+  token_endpoint_auth_method TokenAuthMethod @default(client_secret_post)
+
+  // Array of OAuth 2.0 grant type strings that the client can use atthe token endpoint
+  grant_types GrantTypes[]
+
+  // Array of the OAuth 2.0 response type strings that the client can
+  // use at the authorization endpoint
+  response_types ResponseType[]
+
+  // Human-readable string name of the client to be presented to the end-user
+  // during authorization
+  client_name String
+
+  // URL string of a web page providing information about the client
+  // @see https://datatracker.ietf.org/doc/html/rfc7591#section-2.2
+  client_uri String?
+  
+  // URL string that references a logo for the client. If present, the
+  // server displays this image to the end-user during approval.
+  logo_uri String?
+
+  // String containing a space-separated list of scope values.
+  scope String?
+
+  // Array of strings representing ways to contact people responsible
+  // for this client, typically email addresses
+  contacts String[]
+
+  // URL string that points to a human-readable terms of service
+  // document for the client that describes a contractual relationship
+  // between the end-user and the client that the end-user accepts when
+  // authorizing the client
+  tos_uri String? @db.VarChar()
+
+  // URL string that points to a human-readable privacy policy document
+  // that describes how the deployment organization collects, uses,
+  // retains, and discloses personal data
+  policy_uri String? @db.VarChar()
+
+  // URL string referencing the client's JSON Web Key (JWK) Set
+  // [RFC7517] document, which contains the client's public keys. The
+  // value of this field MUST point to a valid JWK Set document. These
+  // keys can be used by higher-level protocols that use signing or
+  // encryption
+  jwks_uri String?
+
+  // Client's JSON Web Key Set [RFC7517] document value, which contains
+  // the client's public keys.  The value of this field MUST be a JSON
+  // object containing a valid JWK Set
+  jwks Json?
+
+  // A unique identifier string (e.g., a Universally Unique Identifier
+  // (UUID)) assigned by the client developer or software publisher
+  // used by registration endpoints to identify the client software to
+  // be dynamically registered
+  software_id String @unique
+
+  // A version identifier string for the client software identified by
+  // "software_id". The value of the "software_version" change
+  // on any update to the client software identified by the same
+  // "software_id".
+  software_version String @default("v1.0")
 
   created_at DateTime @default(now())
+
   updated_at DateTime @updatedAt
 
-  server_id Int
+  server_id String
   server OAuth2Server @relation(fields: [server_id], references:[id])
 
-  // todo: @index([client_id, server_id])
-  // todo: @index([client_id, client_secret])
+  site_id Int
+  site Site @relation(fields: [site_id], references: [id])
+
+  @@index([id, server_id])
 }
