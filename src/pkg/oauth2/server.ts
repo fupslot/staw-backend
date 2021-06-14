@@ -20,6 +20,7 @@ export class OAuth2Server {
    * scope of this specification.
    *
    * @see https://datatracker.ietf.org/doc/html/rfc6749#section-3.1
+   * @returns Promise<void>
    */
   async authorize(
     request: AuthorizationRequest,
@@ -38,8 +39,24 @@ export class OAuth2Server {
    * implicit grant type (since an access token is issued directly).
    *
    * @see https://datatracker.ietf.org/doc/html/rfc6749#section-3.2
+   * @returns Promise<void>
    */
   async token(): Promise<void> {
+    return;
+  }
+
+  /**
+   * Token Introspection
+   *
+   * The introspection endpoint is an OAuth 2.0 endpoint that takes a
+   * parameter representing an OAuth 2.0 token and returns a JSON
+   * [RFC7159] document representing the meta information surrounding the
+   * token, including whether this token is currently active
+   *
+   * @see https://datatracker.ietf.org/doc/html/rfc7662#section-2
+   * @returns Promise<void>
+   */
+  async introspection(): Promise<void> {
     return;
   }
 }
