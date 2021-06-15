@@ -1,4 +1,4 @@
-import { Site, OAuth2Server, OAuth2Application } from "@prisma/client";
+import { Site, OAuth2Server, OAuth2Client } from "@prisma/client";
 import { pkce, PKCEStateObject } from "./utils";
 import { IAppContext } from "../context";
 
@@ -20,7 +20,7 @@ export class OAuth2Model {
     return this.ctx.store.oAuth2Server.findFirst({
       where: {
         site_id: site.id,
-        name: alias,
+        alias: alias,
       },
     });
   }
@@ -29,22 +29,30 @@ export class OAuth2Model {
     site: Site,
     server: OAuth2Server,
     clientId: string
-  ): Promise<OAuth2Application | null> {
-    return this.ctx.store.oAuth2Application.findFirst({
+  ): Promise<OAuth2Client | null> {
+    return this.ctx.store.oAuth2Client.findFirst({
       where: {
+        site_id: site.id,
         server_id: server.id,
         client_id: clientId,
       },
     });
   }
 
+  /**
+   * Generate authorization code value
+   *
+   * @param pkceStateObject
+   * @param secret This value used to sign an authorization code
+   * @returns Authorization code
+   */
   generateAuthorizaionCode(
-    client: OAuth2Application,
-    pkceStateObject: PKCEStateObject
+    pkceStateObject: PKCEStateObject,
+    secret: string
   ): string {
     const authorizationCode = pkce.createAuthorizationCode(
       pkceStateObject,
-      client.client_secret
+      secret
     );
 
     return authorizationCode;

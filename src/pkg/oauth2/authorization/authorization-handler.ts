@@ -1,4 +1,3 @@
-import { Response } from "express";
 import { OAuth2Model } from "../model";
 import { PKCEStateObject } from "../utils";
 import {
@@ -13,14 +12,7 @@ export class AuthorizationHandler {
     this.model = opts.model;
   }
 
-  async handler(request: AuthorizationRequest, res: Response): Promise<void> {
-    if (!request.params.subdomain) {
-      throw new AuthorizationResponseError(
-        "access_denied",
-        request.params.state
-      );
-    }
-
+  async handler(request: AuthorizationRequest): Promise<AuthorizationResponse> {
     await request.validate();
 
     const params = request.params;
@@ -54,17 +46,12 @@ export class AuthorizationHandler {
     };
 
     const authorizationCode = this.model.generateAuthorizaionCode(
-      client,
-      pkceStateObject
+      pkceStateObject,
+      client.client_secret
     );
 
     await this.model.saveState(pkceStateObject);
 
-    const response = new AuthorizationResponse(authorizationCode, params.state);
-
-    return res.redirect(
-      response.status,
-      response.getRedirectUrl(params.redirect_uri)
-    );
+    return new AuthorizationResponse(request, authorizationCode);
   }
 }

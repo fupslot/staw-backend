@@ -1,6 +1,9 @@
-import express from "express";
 import { OAuth2Model } from "./model";
-import { AuthorizationHandler, AuthorizationRequest } from "./authorization";
+import {
+  AuthorizationHandler,
+  AuthorizationRequest,
+  AuthorizationResponse,
+} from "./authorization";
 
 import {} from "./";
 
@@ -23,13 +26,9 @@ export class OAuth2Server {
    * @returns Promise<void>
    */
   async authorize(
-    request: AuthorizationRequest,
-    res: express.Response
-  ): Promise<void> {
-    return new AuthorizationHandler({ model: this.model }).handler(
-      request,
-      res
-    );
+    request: AuthorizationRequest
+  ): Promise<AuthorizationResponse> {
+    return new AuthorizationHandler({ model: this.model }).handler(request);
   }
 
   /**

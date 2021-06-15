@@ -1,3 +1,4 @@
+import { format as fmt } from "util";
 import { Request } from "express";
 import { IncomingHttpHeaders } from "http";
 import { PKCECodeChallengeHash } from "../../../internal";
@@ -9,7 +10,6 @@ import {
   vCodeChallenge,
   vCodeChallengeHash,
 } from "../../../internal/validation";
-import { FallbackURI } from "./authorization-response";
 import { AuthorizationResponseError } from "./authorization-response-error";
 
 type ResponseType = "code" | "token";
@@ -23,6 +23,7 @@ export type OAuthParamsType = Readonly<
 >;
 
 interface RequestQueryParams {
+  [key: string]: string | ResponseType | undefined;
   /**
    * The value MUST be one of "code" for requesting an
    * authorization code, "token" for
@@ -40,15 +41,24 @@ interface RequestQueryParams {
   code_challenge_hash: PKCECodeChallengeHash;
 }
 
-export type AuthorizeQueryParamsType = RequestQueryParams;
+type AuthorizationRequestParams = OAuthParamsType &
+  RequestQueryParams & {
+    subdomain: string;
+  };
+
+interface FallbackURI {
+  baseUrl: string;
+  signInUrl: string;
+}
+
 export type AuthorizationRequestType = Request<
   OAuthParamsType,
   unknown,
   unknown,
-  AuthorizeQueryParamsType
+  RequestQueryParams
 >;
 
-export type AuthorizeRequest = AuthorizeQueryParamsType &
+export type AuthorizeRequest = RequestQueryParams &
   Required<OptionalRequestParams>;
 
 type AuthTokenTypes = "basic" | "bearer";
@@ -60,19 +70,72 @@ type AuthToken = {
   password?: string;
 };
 
-export class AuthorizationRequest {
-  public fallbackURI: FallbackURI;
-  public params: OAuthParamsType &
-    AuthorizeQueryParamsType & {
-      subdomain: string;
-    };
+abstract class AbstractRequest<RequestType extends Request> {
+  public subdomain: string;
   public headers: IncomingHttpHeaders;
+  public fallback: FallbackURI;
   public authorization: AuthToken | null;
 
-  constructor(req: AuthorizationRequestType, fallbackURI: FallbackURI) {
-    this.fallbackURI = fallbackURI;
-    this.headers = req.headers;
-    this.authorization = this.getTokenFromHeader(req.headers["authorization"]);
+  constructor(request: RequestType) {
+    const subdomain = request.subdomains.shift() || undefined;
+    if (!subdomain) {
+      throw new AuthorizationResponseError("access_denied");
+    }
+
+    this.subdomain = subdomain;
+    this.headers = request.headers;
+    this.authorization = this.getAuthorization(request.get("authorization"));
+    this.fallback = this.getFallbackUrls(request);
+  }
+
+  getFallbackUrls(request: RequestType): FallbackURI {
+    const host = request.get("host") || "";
+    const protocol = request.protocol;
+
+    return {
+      baseUrl: fmt("%s://%s", protocol, host),
+      signInUrl: fmt("%s://%s/sign-in", protocol, host),
+    };
+  }
+
+  getAuthorization(authorization: string | undefined): AuthToken | null {
+    if (!authorization) {
+      return null;
+    }
+
+    if (authorization.startsWith("Basic")) {
+      const token: AuthToken = {
+        type: "basic",
+        raw64: authorization.substr("Basic".length + 1),
+        raw: Buffer.from(
+          authorization.substr("Basic".length + 1),
+          "base64"
+        ).toString(),
+      };
+
+      const [user, password] = token.raw.split(":");
+
+      if (user && password) {
+        token.user = user;
+        token.password = password;
+      }
+    } else if (authorization.startsWith("Bearer")) {
+      return {
+        type: "bearer",
+        raw: authorization.substr("Bearer".length + 1),
+      };
+    }
+
+    return null;
+  }
+}
+
+export class AuthorizationRequest extends AbstractRequest<AuthorizationRequestType> {
+  public params: AuthorizationRequestParams;
+
+  constructor(req: AuthorizationRequestType) {
+    super(req);
+
     this.params = { ...req.params, ...req.query, subdomain: req.subdomain };
 
     if (this.authorization?.type === "basic") {
@@ -151,38 +214,5 @@ export class AuthorizationRequest {
         this.params.state
       );
     }
-  }
-
-  private getTokenFromHeader(
-    authorization: string | undefined
-  ): AuthToken | null {
-    if (!authorization) {
-      return null;
-    }
-
-    if (authorization.startsWith("Basic")) {
-      const token: AuthToken = {
-        type: "basic",
-        raw64: authorization.substr("Basic".length + 1),
-        raw: Buffer.from(
-          authorization.substr("Basic".length + 1),
-          "base64"
-        ).toString(),
-      };
-
-      const [user, password] = token.raw.split(":");
-
-      if (user && password) {
-        token.user = user;
-        token.password = password;
-      }
-    } else if (authorization.startsWith("Bearer")) {
-      return {
-        type: "bearer",
-        raw: authorization.substr("Bearer".length + 1),
-      };
-    }
-
-    return null;
   }
 }

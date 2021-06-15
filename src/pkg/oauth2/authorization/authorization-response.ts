@@ -1,21 +1,48 @@
+import { OutgoingHttpHeaders, OutgoingHttpHeader } from "http";
 import { format as fmt } from "util";
-
-export interface FallbackURI {
-  SIGN_IN: string;
-  SITE_BASE: string;
-}
-
-export class AuthorizationResponse {
-  code: string;
-  state: string;
+import { AuthorizationRequest } from "./authorization-request";
+import { lowercase } from "../../../internal";
+abstract class AbstractResponse {
+  headers: OutgoingHttpHeaders;
   status: number;
-  constructor(code: string, state: string) {
-    this.code = code;
-    this.state = state;
-    this.status = 302;
+
+  constructor() {
+    this.status = 200;
+    this.headers = {};
   }
 
-  getRedirectUrl(callbackURI: string): string {
-    return fmt("%s?code=%s&state=%s", callbackURI, this.code, this.state);
+  set(key: string, value: OutgoingHttpHeader): void {
+    this.headers[lowercase(key)] = value;
+  }
+
+  get(key: string): OutgoingHttpHeader | undefined {
+    return this.headers[lowercase(key)];
+  }
+}
+
+export class AuthorizationResponse extends AbstractResponse {
+  request: AuthorizationRequest;
+  code: string;
+  state: string;
+
+  constructor(request: AuthorizationRequest, code: string) {
+    super();
+
+    this.request = request;
+    this.code = code;
+    this.state = request.params.state;
+    this.status = 302;
+
+    this.set("Cache-Control", "no-store");
+    this.set("Pragma", "no-cache");
+  }
+
+  getRedirectUrl(): string {
+    return fmt(
+      "%s?code=%s&state=%s",
+      this.request.params.redirect_uri,
+      this.code,
+      this.state
+    );
   }
 }
