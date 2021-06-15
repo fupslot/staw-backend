@@ -59,4 +59,18 @@ export class OAuth2Server {
   async introspection(): Promise<void> {
     return;
   }
+
+  /**
+   * Client Registration
+   *
+   * The client registration endpoint is an OAuth 2.0 endpoint defined in
+   * this document that is designed to allow a client to be registered
+   * with the authorization server
+   *
+   * @see https://datatracker.ietf.org/doc/html/rfc7591#section-3.1
+   * @returns Promise<void>
+   */
+  async register(): Promise<void> {
+    return;
+  }
 }
