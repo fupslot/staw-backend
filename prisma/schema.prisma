@@ -209,7 +209,7 @@ model OAuth2Client {
   type AuthType @default(Web)
 
   // OAuth 2.0 client identifier string
-  client_id String @default(cuid())
+  client_id String @default(cuid()) @unique
 
   // Cryptographically secure pseudorandom string, the client's secret
   // ---------------------------------------------------------------------------
@@ -307,5 +307,5 @@ model OAuth2Client {
   site_id Int
   site Site @relation(fields: [site_id], references: [id])
 
-  @@index([id, server_id])
+  @@index([site_id, server_id, client_id])
 }
