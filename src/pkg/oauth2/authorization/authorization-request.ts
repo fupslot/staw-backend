@@ -2,7 +2,6 @@ import { Request } from "express";
 import { IncomingHttpHeaders } from "http";
 import { PKCECodeChallengeHash } from "../../../internal";
 import {
-  vResponseType,
   vClientId,
   vState,
   vScope,
@@ -100,10 +99,14 @@ export class AuthorizationRequest {
       );
     }
 
-    if (!(await vResponseType.isValid(this.params.response_type))) {
+    if (
+      this.params.response_type !== "code" &&
+      this.params.response_type !== "token"
+    ) {
       throw new AuthorizationResponseError(
         "invalid_request",
-        this.params.state
+        this.params.state,
+        `The response type 'response_type' must be registered with one of the values 'code' or 'token' but found only '${this.params.response_type}' instead`
       );
     }
 

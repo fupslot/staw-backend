@@ -108,7 +108,6 @@ export const InviteParamsSchema = object().shape({
   code: alphanum,
 });
 
-export const vResponseType = mixed().required().oneOf(["code", "token"]);
 export const vClientId = vschar.required();
 export const vClientSecret = vschar.required();
 export const vState = nqchar.required();
