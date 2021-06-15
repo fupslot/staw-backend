@@ -11,7 +11,7 @@ generator client {
 }
 
 model Site {
-  id Int @id @default(autoincrement())
+  id String @id @default(dbgenerated("(generate_uid(14, 'site_')::TEXT)"))
 
   // Organization legal name. The name will be displayed to the end-user
   display_name String @db.VarChar(150)
@@ -38,7 +38,7 @@ model Site {
 }
 
 model User {
-  id Int @id @default(autoincrement())
+  id String @id @default(dbgenerated("(generate_uid(14, 'user_')::TEXT)"))
 
   // String containing the account name, usually consists of values 'first_name'
   // and 'last_name' separated by [space].
@@ -73,7 +73,7 @@ model User {
 
   updated_at DateTime @updatedAt
 
-  site_id Int
+  site_id String
   site Site @relation(fields: [site_id], references:[id])
 
   profile Profile?
@@ -83,7 +83,7 @@ model User {
 }
 
 model Profile {
-  id Int @id @default(autoincrement())
+  id String @id @default(dbgenerated("(generate_uid(14, 'profile_')::TEXT)"))
 
   // The end-user job title string
   job_title String?
@@ -93,12 +93,12 @@ model Profile {
   // @see https://en.gravatar.com/site/implement/hash/
   gravatar_avatar_hash String
 
-  user_id Int
+  user_id String
   user User @relation(fields: [user_id], references:[id])
 }
 
 model Invite {
-  id Int @id @default(autoincrement())
+  id String @id @default(dbgenerated("(generate_uid(14, 'invite_')::TEXT)"))
 
   code String @db.VarChar(100) @unique
   
@@ -119,29 +119,24 @@ model Invite {
   updated_at DateTime @updatedAt
 
   site Site @relation(fields: [site_id], references: [id])
-  site_id Int
+  site_id String
 }
 
 model OAuth2Server {
-  id Int @id @default(autoincrement())
+  id String @id @default(dbgenerated("(generate_uid(14, 'auth_')::TEXT)"))
   
-  alias String @db.VarChar(50)
-  
-  // Array of OAuth 2.0 clients that subject to the OAuth 2.0 server. The clients
-  // will shares common entities that belong to that server,
-  // such as: scopes, users etc.
-  clients OAuth2Client[]
+  alias String @default(cuid())
 
   site Site @relation(fields: [site_id], references:[id])
-  site_id Int
+  site_id String
 
   @@index([site_id, alias])
 }
 
 enum AuthType {
-  Web
-  Spa
-  Native
+  web
+  spa
+  native
 }
 
 enum GrantTypes {
@@ -164,11 +159,6 @@ enum GrantTypes {
   // The refresh token grant type
   // @see https://datatracker.ietf.org/doc/html/rfc7591#section-6
   refresh_token
-}
-
-enum AuthMethod {
-  OIDC
-  // SAML
 }
 
 enum TokenAuthMethod {
@@ -202,11 +192,9 @@ enum ResponseType {
 // @see https://datatracker.ietf.org/doc/html/rfc7591#section-2
 model OAuth2Client {
   // The client's unique identifier
-  id Int @id @default(autoincrement())
+  id String @id @default(dbgenerated("(generate_uid(14, 'client_')::TEXT)"))
 
-  method AuthMethod @default(OIDC)
-
-  type AuthType @default(Web)
+  type AuthType @default(web)
 
   // OAuth 2.0 client identifier string
   client_id String @default(cuid()) @unique
@@ -301,11 +289,8 @@ model OAuth2Client {
 
   updated_at DateTime @updatedAt
 
-  server_id Int
-  server OAuth2Server @relation(fields: [server_id], references:[id])
-
-  site_id Int
+  site_id String
   site Site @relation(fields: [site_id], references: [id])
 
-  @@index([site_id, server_id, client_id])
+  @@index([site_id, client_id])
 }
