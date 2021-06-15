@@ -217,6 +217,17 @@ model OAuth2Client {
   //       this way to simplify the development process, but for the production
   //       consider to use a scure key-value store 
   client_secret String @db.VarChar(256)
+
+  // Short-lived access tokens and long-lived refresh tokens
+  // @see https://www.oauth.com/oauth2-servers/access-tokens/access-token-lifetime/
+  // ---------------------------------------------------------------------------
+  // The integer value represents how long (seconds) an access token is considered valid. 
+  // @default: 7200 (2 hours in seconds)
+  access_token_lifetime Int @default(7200)
+
+  // The integer value represents how long (seconds) an refresh token is considered valid. 
+  // @default: 2592000 (30 days in seconds)
+  refresh_token_lifetime Int @default(2592000)
  
   // Array of redirection URI strings for use in redirect-based flows
   // such as the authorization code and implicit flows
