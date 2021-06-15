@@ -57,13 +57,13 @@ model User {
   email_verified Boolean @default(false)
   
   // The date that indicates when the end-user's email was verified.
-  email_verified_at DateTime
+  email_verified_at DateTime?
 
   // True/False statement indicates whether the end-user account is locked or not
   account_locked Boolean @default(false)
 
   // The date that indicates when the end-user account was blocked.
-  account_locked_at DateTime
+  account_locked_at DateTime?
 
   // When 'account_locked' is set to 'True' this string might contain
   // an explanation (reason) of the blockage
