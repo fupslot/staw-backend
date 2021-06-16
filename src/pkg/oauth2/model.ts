@@ -33,7 +33,6 @@ export class OAuth2Model {
     return this.ctx.store.oAuth2Client.findFirst({
       where: {
         site_id: site.id,
-        server_id: server.id,
         client_id: clientId,
       },
     });
