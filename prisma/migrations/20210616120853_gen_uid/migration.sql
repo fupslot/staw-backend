@@ -1,3 +1,34 @@
+-- FUNCTION: public.gen_uid(integer)
+
+-- DROP FUNCTION public.gen_uid(integer);
+CREATE OR REPLACE FUNCTION public.gen_uid(
+	size integer DEFAULT 14)
+    RETURNS text
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+characters TEXT := 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  bytes BYTEA := gen_random_bytes(size);
+  l INT := length(characters);
+  i INT := 0;
+  output TEXT := '';
+BEGIN
+  WHILE i < size LOOP
+    output := output || substr(characters, get_byte(bytes, i) % l + 1, 1);
+    i := i + 1;
+  END LOOP;
+  RETURN output;
+  END;
+$BODY$;
+
+ALTER FUNCTION public.gen_uid(integer)
+    OWNER TO postgres;
+
+-- Enable 'pgcrypto' extention
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 /*
   Warnings:
 
@@ -23,39 +54,6 @@ DROP TYPE "AuthType_old";
 ALTER TABLE "OAuth2Client" ALTER COLUMN "type" SET DEFAULT 'web';
 COMMIT;
 
--- Enable the pgcrypto module
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
--- FUNCTION: public.generate_uid(integer, text)
-
--- DROP FUNCTION public.generate_uid(integer, text);
-
-CREATE OR REPLACE FUNCTION public.generate_uid(
-	size integer DEFAULT 12,
-	prefix text DEFAULT 'uid_'::text)
-    RETURNS text
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-DECLARE
-characters TEXT := 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  bytes BYTEA := gen_random_bytes(size);
-  l INT := length(characters);
-  i INT := 0;
-  output TEXT := '';
-BEGIN
-  WHILE i < size LOOP
-    output := output || substr(characters, get_byte(bytes, i) % l + 1, 1);
-    i := i + 1;
-  END LOOP;
-  RETURN CONCAT(prefix, output);
-  END;
-$BODY$;
-
-ALTER FUNCTION public.generate_uid(integer, text)
-    OWNER TO postgres;
-
 -- DropForeignKey
 ALTER TABLE "Invite" DROP CONSTRAINT "Invite_site_id_fkey";
 
@@ -79,7 +77,7 @@ DROP INDEX "OAuth2Client.site_id_server_id_client_id_index";
 
 -- AlterTable
 ALTER TABLE "Invite" DROP CONSTRAINT "Invite_pkey",
-ALTER COLUMN "id" SET DEFAULT (generate_uid(14, 'invite_')::TEXT),
+ALTER COLUMN "id" SET DEFAULT gen_uid(17),
 ALTER COLUMN "id" DROP DEFAULT,
 ALTER COLUMN "id" SET DATA TYPE TEXT,
 ALTER COLUMN "site_id" SET DATA TYPE TEXT,
@@ -92,7 +90,7 @@ DROP COLUMN "method",
 DROP COLUMN "server_id",
 ALTER COLUMN "type" SET DEFAULT E'web',
 ALTER COLUMN "site_id" SET DATA TYPE TEXT,
-ALTER COLUMN "id" SET DEFAULT (generate_uid(14, 'client_')::TEXT),
+ALTER COLUMN "id" SET DEFAULT gen_uid(17),
 ALTER COLUMN "id" DROP DEFAULT,
 ALTER COLUMN "id" SET DATA TYPE TEXT,
 ADD PRIMARY KEY ("id");
@@ -102,7 +100,7 @@ DROP SEQUENCE "OAuth2Client_id_seq";
 ALTER TABLE "OAuth2Server" DROP CONSTRAINT "OAuth2Server_pkey",
 ALTER COLUMN "site_id" SET DATA TYPE TEXT,
 ALTER COLUMN "alias" SET DATA TYPE TEXT,
-ALTER COLUMN "id" SET DEFAULT (generate_uid(14, 'auth_')::TEXT),
+ALTER COLUMN "id" SET DEFAULT gen_uid(17),
 ALTER COLUMN "id" DROP DEFAULT,
 ALTER COLUMN "id" SET DATA TYPE TEXT,
 ADD PRIMARY KEY ("id");
@@ -110,7 +108,7 @@ DROP SEQUENCE "OAuth2Server_id_seq";
 
 -- AlterTable
 ALTER TABLE "Profile" DROP CONSTRAINT "Profile_pkey",
-ALTER COLUMN "id" SET DEFAULT (generate_uid(14, 'profile_')::TEXT),
+ALTER COLUMN "id" SET DEFAULT gen_uid(17),
 ALTER COLUMN "id" DROP DEFAULT,
 ALTER COLUMN "id" SET DATA TYPE TEXT,
 ALTER COLUMN "user_id" SET DATA TYPE TEXT,
@@ -119,7 +117,7 @@ DROP SEQUENCE "Profile_id_seq";
 
 -- AlterTable
 ALTER TABLE "Site" DROP CONSTRAINT "Site_pkey",
-ALTER COLUMN "id" SET DEFAULT (generate_uid(14, 'site_')::TEXT),
+ALTER COLUMN "id" SET DEFAULT gen_uid(17),
 ALTER COLUMN "id" DROP DEFAULT,
 ALTER COLUMN "id" SET DATA TYPE TEXT,
 ADD PRIMARY KEY ("id");
@@ -127,7 +125,7 @@ DROP SEQUENCE "Site_id_seq";
 
 -- AlterTable
 ALTER TABLE "User" DROP CONSTRAINT "User_pkey",
-ALTER COLUMN "id" SET DEFAULT (generate_uid(14, 'user_')::TEXT),
+ALTER COLUMN "id" SET DEFAULT gen_uid(17),
 ALTER COLUMN "id" DROP DEFAULT,
 ALTER COLUMN "id" SET DATA TYPE TEXT,
 ALTER COLUMN "site_id" SET DATA TYPE TEXT,

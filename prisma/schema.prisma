@@ -11,7 +11,7 @@ generator client {
 }
 
 model Site {
-  id String @id @default(dbgenerated("(generate_uid(14, 'site_')::TEXT)"))
+  id String @id @db.Text @default(dbgenerated("gen_uid(17)"))
 
   // Organization legal name. The name will be displayed to the end-user
   display_name String @db.VarChar(150)
@@ -38,7 +38,7 @@ model Site {
 }
 
 model User {
-  id String @id @default(dbgenerated("(generate_uid(14, 'user_')::TEXT)"))
+  id String @id @db.Text @default(dbgenerated("gen_uid(17)"))
 
   // String containing the account name, usually consists of values 'first_name'
   // and 'last_name' separated by [space].
@@ -83,7 +83,7 @@ model User {
 }
 
 model Profile {
-  id String @id @default(dbgenerated("(generate_uid(14, 'profile_')::TEXT)"))
+  id String @id @db.Text @default(dbgenerated("gen_uid(17)"))
 
   // The end-user job title string
   job_title String?
@@ -98,7 +98,7 @@ model Profile {
 }
 
 model Invite {
-  id String @id @default(dbgenerated("(generate_uid(14, 'invite_')::TEXT)"))
+  id String @id @db.Text @default(dbgenerated("gen_uid(17)"))
 
   code String @db.VarChar(100) @unique
   
@@ -123,7 +123,7 @@ model Invite {
 }
 
 model OAuth2Server {
-  id String @id @default(dbgenerated("(generate_uid(14, 'auth_')::TEXT)"))
+  id String @id @db.Text @default(dbgenerated("gen_uid(17)"))
   
   alias String @default(cuid())
 
@@ -192,7 +192,7 @@ enum ResponseType {
 // @see https://datatracker.ietf.org/doc/html/rfc7591#section-2
 model OAuth2Client {
   // The client's unique identifier
-  id String @id @default(dbgenerated("(generate_uid(14, 'client_')::TEXT)"))
+  id String @id @db.Text @default(dbgenerated("gen_uid(17)"))
 
   type AuthType @default(web)
 
