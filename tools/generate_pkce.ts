@@ -1,4 +1,4 @@
-import { pkceChallenge } from "../src/internal/crypto";
+import { generatePKCEChallenge } from "../src/pkg/oauth2/crypto/pkce";
 
 /**
  * Run: yarn pkce-challenge
@@ -6,7 +6,7 @@ import { pkceChallenge } from "../src/internal/crypto";
 
 const [, , code_verifier] = process.argv;
 
-const challenge = pkceChallenge(code_verifier);
+const challenge = generatePKCEChallenge(code_verifier);
 
 console.log(`
   PKCE Challenge:`);

@@ -1,6 +1,8 @@
 import { randomBytes, createHmac, createHash } from "crypto";
 
 const alpha_digit_set = "0123456789abcdefghijklmnopqrstuvwxyz";
+const UNRESERVED_CHARSET =
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~";
 
 export function randomString(size: number, mask: string): string {
   let result = "";
@@ -32,20 +34,6 @@ export function hmac_sha256(
   return createHmac("SHA256", secret).update(value).digest().toString(encoding);
 }
 
-export type PKCECodeChallengeHash = "S265";
-export type PKCEStateObject = {
-  state: string;
-  challenge: string;
-  hash: PKCECodeChallengeHash;
-};
-
-export type PKCEAuthorizationCode = string;
-
-export type PKCECodeReturn = { hash: PKCECodeChallengeHash; value: string };
-
-const UNRESERVED_CHARSET =
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~";
-
 function base64_urlencode(base64: string): string {
   return base64.replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
@@ -58,7 +46,22 @@ function generate_challenge(code: string): string {
   return base64_urlencode(createHash("sha256").update(code).digest("base64"));
 }
 
-export function pkceChallenge(code_verifier?: string): {
+export type PKCECodeChallengeMethod = "S256";
+export type PKCEAuthorizationCode = string;
+
+export type PKCEState = {
+  verifier: string;
+
+  challenge: string;
+
+  challenge_method: PKCECodeChallengeMethod;
+
+  issued_to: string;
+
+  redirect_uri?: string;
+};
+
+export function generatePKCEChallenge(code_verifier?: string): {
   code_verifier: string;
   code_challenge: string;
 } {
@@ -75,20 +78,14 @@ export function pkceChallenge(code_verifier?: string): {
 }
 
 export function createAuthorizationCode(
-  state: PKCEStateObject,
+  state: PKCEState,
   secret: string
 ): PKCEAuthorizationCode {
   return base64_urlencode(
-    hmac_sha256(`${state.challenge}:${state.hash}`, secret, "base64")
+    hmac_sha256(
+      `${state.challenge}:${state.challenge_method}`,
+      secret,
+      "base64"
+    )
   );
 }
-
-interface PKCE {
-  pkceChallenge: typeof pkceChallenge;
-  createAuthorizationCode: typeof createAuthorizationCode;
-}
-
-export const pkce = {
-  pkceChallenge: pkceChallenge,
-  createAuthorizationCode: createAuthorizationCode,
-} as PKCE;

@@ -15,7 +15,7 @@
 # 
 GET http://local.example.net/oauth2/default/v1/authorize
   ?response_type=code
-  &client_id=ZeacaeM0Ouy6ieceiv1xa2roo5mohch8
+  &client_id=4mvrjpcvd42fwa7g1ummsxig
   &redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
   &state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
   &code_challenge=bacs7nc_Ri_ub8618ZiU7IeCTTMyuT-JQ1PYfeJvBhw
@@ -24,13 +24,12 @@ GET http://local.example.net/oauth2/default/v1/authorize
 ### OAuth2: Token
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
+Authorization: Basic MG9hdWF4YnF1MEEzc0lnVmU1ZDY6QVpEY3BtamdJeHR2Y2xaRVBWZllCcHNJaVBjdVNIbGpQdk13WEIyag==
 
 grant_type=authorization_code
-&client_id=0oauaxbqu0A3sIgVe5d6
-&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j
 &redirect_uri=http%3A%2F%2Fapp.john.example.net%2Fcallback
 &code_verifier=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
-&code=0uGNs0BFKFQg5d3Rq7e6TUUCJIYjKOsza1hQTIvpns8
+&code=fU7jw2tzJPackMzPkq-lPebrEli7Mq0lyGWaktPlrW4
 
 
 

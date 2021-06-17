@@ -5,7 +5,7 @@ import {
   AuthorizationResponse,
 } from "./authorization";
 
-import {} from "./";
+import { TokenResponse, TokenHandler, TokenRequest } from "./token";
 
 export class OAuth2Server {
   model: OAuth2Model;
@@ -40,8 +40,8 @@ export class OAuth2Server {
    * @see https://datatracker.ietf.org/doc/html/rfc6749#section-3.2
    * @returns Promise<void>
    */
-  async token(): Promise<void> {
-    return;
+  async token(request: TokenRequest): Promise<TokenResponse> {
+    return new TokenHandler({ model: this.model }).handler(request);
   }
 
   /**

@@ -1,5 +1,5 @@
 import { OAuth2Model } from "../model";
-import { PKCEStateObject } from "../utils";
+import { PKCEState } from "../crypto/pkce";
 import {
   AuthorizationResponse,
   AuthorizationRequest,
@@ -8,6 +8,7 @@ import {
 
 export class AuthorizationHandler {
   private model: OAuth2Model;
+
   constructor(opts: { model: OAuth2Model }) {
     this.model = opts.model;
   }
@@ -22,12 +23,7 @@ export class AuthorizationHandler {
       throw new AuthorizationResponseError("access_denied", params.state);
     }
 
-    const server = await this.model.getServer(site, params.serverAlias);
-    if (!server) {
-      throw new AuthorizationResponseError("access_denied", params.state);
-    }
-
-    const client = await this.model.getClient(site, server, params.client_id);
+    const client = await this.model.getClient(params.client_id, { site });
     if (!client) {
       throw new AuthorizationResponseError("access_denied", params.state);
     }
@@ -39,18 +35,33 @@ export class AuthorizationHandler {
       throw new AuthorizationResponseError("invalid_request", params.state);
     }
 
-    const pkceStateObject: PKCEStateObject = {
-      state: params.state,
+    /**
+     * Using PKCE extension to the Authorization Code flow to prevent
+     * several attacks and to be able to securely perform the OAuth exchange
+     * from public clients
+     *
+     * @see https://tools.ietf.org/html/rfc7636
+     *
+     * The server keeps the client id 'client_id' in the state object
+     * to verify later that the authorizationcode was issued
+     */
+
+    const pkceState: PKCEState = {
+      verifier: params.state,
       challenge: params.code_challenge,
-      hash: params.code_challenge_hash,
+      challenge_method: params.code_challenge_hash,
+      issued_to: client.client_id,
+      redirect_uri: request.params.redirect_uri,
     };
 
+    const pkceSecret = client.client_secret;
+
     const authorizationCode = this.model.generateAuthorizaionCode(
-      pkceStateObject,
-      client.client_secret
+      pkceState,
+      pkceSecret
     );
 
-    await this.model.saveState(pkceStateObject);
+    await this.model.savePKCEState(pkceState);
 
     return new AuthorizationResponse(request, authorizationCode);
   }
