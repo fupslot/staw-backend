@@ -133,10 +133,20 @@ model OAuth2Server {
   @@index([site_id, alias])
 }
 
-enum AuthType {
-  web
-  spa
-  native
+// @see https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
+enum ClientType {
+  // Clients capable of maintaining the confidentiality of their
+  // credentials (e.g., client implemented on a secure server with
+  // restricted access to the client credentials), or capable of secure
+  // client authentication using other means.
+  confidential
+  
+  // Clients incapable of maintaining the confidentiality of their
+  // credentials (e.g., clients executing on the device used by the
+  // resource owner, such as an installed native application or a web
+  // browser-based application), and incapable of secure client
+  // authentication via any other means.
+  public
 }
 
 enum GrantTypes {
@@ -194,7 +204,7 @@ model OAuth2Client {
   // The client's unique identifier
   id String @id @db.Text @default(dbgenerated("gen_uid(17)"))
 
-  type AuthType @default(web)
+  type ClientType @default(confidential)
 
   // OAuth 2.0 client identifier string
   client_id String @default(cuid()) @unique
