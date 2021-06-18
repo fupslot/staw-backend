@@ -56,22 +56,21 @@ export interface TokenRequestBody {
   client_secret: string;
 }
 
-export abstract class AbstractRequest<RequestType extends Request> {
-  public subdomain: string | undefined;
+export abstract class AbstractRequest<T extends Request> {
+  public subdomain: string | null;
   public headers: IncomingHttpHeaders;
   public fallback: FallbackURI;
   public authorization: AuthToken | null;
 
-  constructor(request: RequestType) {
-    const subdomain = request.subdomains.shift() || undefined;
-
-    this.subdomain = subdomain;
+  constructor(request: T) {
     this.headers = request.headers;
+
+    this.subdomain = this.getSubdomain(request);
     this.authorization = this.getAuthorization(request.get("authorization"));
     this.fallback = this.getFallbackUrls(request);
   }
 
-  getFallbackUrls(request: RequestType): FallbackURI {
+  getFallbackUrls(request: T): FallbackURI {
     const host = request.get("host") || "";
     const protocol = request.protocol;
 
@@ -79,6 +78,10 @@ export abstract class AbstractRequest<RequestType extends Request> {
       baseUrl: fmt("%s://%s", protocol, host),
       signInUrl: fmt("%s://%s/sign-in", protocol, host),
     };
+  }
+
+  getSubdomain(request: T): string | null {
+    return request.subdomains.shift() || null;
   }
 
   getAuthorization(authorization: string | undefined): AuthToken | null {
