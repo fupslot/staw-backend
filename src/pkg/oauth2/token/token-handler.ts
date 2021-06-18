@@ -6,6 +6,9 @@ export class TokenHandler extends AbstructHandler {
   async handler(request: TokenRequest): Promise<TokenResponse> {
     await request.validate();
 
+    const params = request.params;
+    const authorization = request.authorization;
+
     /**
      * Client authentication failed (e.g., unknown client, no client authentication
      * included, or unsupported authentication method)
@@ -13,34 +16,35 @@ export class TokenHandler extends AbstructHandler {
      * @see https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
      */
     if (
-      !request.authorization ||
-      request.authorization.type !== "basic" ||
-      !request.authorization.user ||
-      !request.authorization.password
+      !authorization ||
+      authorization.type !== "basic" ||
+      !authorization.user ||
+      !authorization.password
     ) {
-      const error = new TokenResponseError("invalid_client");
+      const responseError = new TokenResponseError("invalid_client");
 
-      error.set("WWW-Authenticate", 'Basic realm="Client" charset="UTF-8"');
-      error.status = 401;
+      responseError.set(
+        "WWW-Authenticate",
+        'Basic realm="Client" charset="UTF-8"'
+      );
+      responseError.status = 401;
 
-      throw error;
+      throw responseError;
     }
-
-    const params = request.params;
 
     const site = await this.model.getSite(params.subdomain);
     if (!site) {
       throw new TokenResponseError("invalid_request");
     }
 
-    const client = await this.model.getClient(request.authorization.user, {
+    const client = await this.model.getClient(authorization.user, {
       site,
     });
     if (!client) {
       throw new TokenResponseError("invalid_request");
     }
 
-    if (request.authorization.password !== client.client_secret) {
+    if (authorization.password !== client.client_secret) {
       throw new TokenResponseError("invalid_request");
     }
 
@@ -53,8 +57,7 @@ export class TokenHandler extends AbstructHandler {
      *
      * Ensure that the "redirect_uri" parameter is present if the
      * "redirect_uri" parameter was included in the initial authorization
-     * request, and if included ensure that
-     * their values are identical.
+     * request, and if included ensure that their values are identical.
      */
     const pkceState = await this.model.findPKCEState(
       request.params.code_verifier
@@ -81,7 +84,10 @@ export class TokenHandler extends AbstructHandler {
       pkceState.redirect_uri &&
       pkceState.redirect_uri !== request.params.redirect_uri
     ) {
-      throw new TokenResponseError("invalid_request");
+      throw new TokenResponseError(
+        "invalid_request",
+        "The initial authroization request included 'redirect_uri', ensure their values are identical"
+      );
     }
 
     /**

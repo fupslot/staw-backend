@@ -41,11 +41,11 @@ export class TokenResponseError extends Error {
     this.status = 400;
 
     if (description) {
-      this.error_description = encodeURIComponent(description);
+      this.error_description = description;
     }
 
     if (uri) {
-      this.error_uri = encodeURIComponent(uri);
+      this.error_uri = uri;
     }
   }
 

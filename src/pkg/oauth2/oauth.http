@@ -24,10 +24,10 @@ GET http://local.example.net/oauth2/default/v1/authorize
 ### OAuth2: Token
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic MG9hdWF4YnF1MEEzc0lnVmU1ZDY6QVpEY3BtamdJeHR2Y2xaRVBWZllCcHNJaVBjdVNIbGpQdk13WEIyag==
+Authorization: Basic NG12cmpwY3ZkNDJmd2E3ZzF1bW1zeGlnOmo5cW9mZXB6anl5bnh6cHh2M2lodzYyOGt4NHMzdG11
 
 grant_type=authorization_code
-&redirect_uri=http%3A%2F%2Fapp.john.example.net%2Fcallback
+&redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
 &code_verifier=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
 &code=fU7jw2tzJPackMzPkq-lPebrEli7Mq0lyGWaktPlrW4
 
