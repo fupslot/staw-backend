@@ -1,34 +1,9 @@
-import Redis from "ioredis";
 import { PKCEState } from "../oauth2/crypto/pkce";
-
-function string2object(text: string): unknown {
-  try {
-    return JSON.parse(text);
-  } catch (_) {
-    return null;
-  }
-}
-
-function object2string(record: Record<string, unknown>) {
-  return JSON.stringify(record);
-}
-
-abstract class AbstractStore {
-  protected store: Redis.Redis;
-
-  constructor(url: string) {
-    this.store = new Redis(url);
-  }
-
-  close() {
-    this.store.disconnect();
-  }
-}
+import { AbstractStore, object2string, string2object } from "./abstract-store";
 
 type StateStoreOptions = {
   stateLifetimeSec: number;
 };
-
 export class PKCEStateStore extends AbstractStore {
   private options: StateStoreOptions;
 
