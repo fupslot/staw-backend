@@ -1,11 +1,33 @@
+import { Response } from "express";
 import { OAuth2Model } from "./model";
-import {
-  AuthorizationHandler,
-  AuthorizationRequest,
-  AuthorizationResponse,
-} from "./authorization";
+import { AuthorizationHandler } from "./authorization";
 
-import { TokenResponse, TokenHandler, TokenRequest } from "./token";
+import { TokenHandler } from "./token";
+import { OAuthRequest } from "./request";
+
+/**
+ * Authorization Code Grant - 'response_type = code'
+ *                          ´- 'grant_type = authorization_code'
+ * Implicit Grant           - 'response_type = token'
+ * Password Grant           - 'grant_type = password'
+ * Client Credentials Grant - 'grant_type = client_credentials'
+ */
+
+// GET /authorize?response_type=code  [Authorization Code Grant]
+
+// POST /token                        [Authorization Code Grant]
+//   grant_type=authorization_code
+
+// GET /authorize?response_type=token [Implicit Grant]
+
+// POST /token                        [Passport Grant]
+//   grant_type=passport
+
+// POST /token                        [Client Credentials Grant]
+//   grant_type=client_credentials
+
+// POST /token                        [Refresh Token Grant]
+//   grant_type=refresh_token
 
 export class OAuth2Server {
   model: OAuth2Model;
@@ -25,10 +47,8 @@ export class OAuth2Server {
    * @see https://datatracker.ietf.org/doc/html/rfc6749#section-3.1
    * @returns Promise<void>
    */
-  async authorize(
-    request: AuthorizationRequest
-  ): Promise<AuthorizationResponse> {
-    return new AuthorizationHandler({ model: this.model }).handler(request);
+  async authorize(request: OAuthRequest, res: Response): Promise<void> {
+    return new AuthorizationHandler({ model: this.model }).handle(request, res);
   }
 
   /**
@@ -40,8 +60,8 @@ export class OAuth2Server {
    * @see https://datatracker.ietf.org/doc/html/rfc6749#section-3.2
    * @returns Promise<void>
    */
-  async token(request: TokenRequest): Promise<TokenResponse> {
-    return new TokenHandler({ model: this.model }).handler(request);
+  async token(request: OAuthRequest, res: Response): Promise<void> {
+    return new TokenHandler({ model: this.model }).handle(request, res);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { generatePKCEChallenge } from "../src/pkg/oauth2/crypto/pkce";
+import { generatePKCEChallenge } from "../src/pkg/oauth2/crypto/token";
 
 /**
  * Run: yarn pkce-challenge

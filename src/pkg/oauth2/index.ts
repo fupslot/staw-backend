@@ -1,23 +1,13 @@
-import express, {
-  Request,
-  Response,
-  NextFunction,
-  Express,
-  request,
-} from "express";
+import express, { Request, Response, NextFunction, Express } from "express";
 
 import { urlencoded, x_form_www_urlencoded_required } from "./middleware";
 import { IAppContext } from "../context";
 import { wrap } from "../../internal";
 import { OAuth2Server } from "./server";
 import { OAuth2Model } from "./model";
-import {
-  AuthorizationRequestType,
-  AuthorizationRequest,
-  AuthorizationResponseError,
-} from "./authorization";
-import { TokenRequest, TokenRequestType, TokenResponseError } from "./token";
-
+import { AuthorizationResponseError } from "./authorization";
+import { TokenResponseError } from "./token";
+import { OAuthRequest, OAuthRequestType } from "./request";
 /**
  * OAuth2 Server Framework
  *
@@ -30,19 +20,14 @@ export function OAuth2(ctx: IAppContext): Express {
 
   oauth2.get(
     "/oauth2/:serverAlias/v1/authorize",
-    wrap<AuthorizationRequestType>(async (req, res) => {
+    wrap<OAuthRequestType>(async (req, res) => {
       try {
-        const request = new AuthorizationRequest(req);
+        const request = new OAuthRequest(req);
 
         const model = new OAuth2Model(ctx);
         const server = new OAuth2Server(model);
 
-        const response = await server.authorize(request);
-
-        res.set(response.headers);
-        res.redirect(response.status, response.getRedirectUrl());
-
-        return;
+        return await server.authorize(request, res);
       } catch (error) {
         if (!(error instanceof AuthorizationResponseError)) {
           console.error(error);
@@ -57,19 +42,14 @@ export function OAuth2(ctx: IAppContext): Express {
   oauth2.post(
     "/oauth2/:serverAlias/v1/token",
     x_form_www_urlencoded_required(),
-    wrap<TokenRequestType>(async (req, res) => {
+    wrap<OAuthRequestType>(async (req, res) => {
       try {
-        const request = new TokenRequest(req);
+        const request = new OAuthRequest(req);
 
         const model = new OAuth2Model(ctx);
         const server = new OAuth2Server(model);
 
-        const response = await server.token(request);
-
-        res.set(response.headers);
-        res.statusCode = response.status;
-
-        res.json();
+        return await server.token(request, res);
       } catch (error) {
         if (!(error instanceof TokenResponseError)) {
           console.error(error);

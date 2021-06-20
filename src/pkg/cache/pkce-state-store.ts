@@ -1,4 +1,4 @@
-import { PKCEState } from "../oauth2/crypto/pkce";
+import { PKCEState } from "../oauth2/crypto/token";
 import { AbstractStore, object2string, string2object } from "./abstract-store";
 
 type StateStoreOptions = {

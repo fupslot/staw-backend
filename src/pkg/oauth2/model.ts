@@ -1,6 +1,10 @@
 import { Site, OAuth2Server, OAuth2Client } from "@prisma/client";
 import { IAppContext } from "../context";
-import { PKCEState, createAuthorizationCode } from "./crypto/pkce";
+import {
+  PKCEState,
+  createAuthorizationCode,
+  generateRefToken,
+} from "./crypto/token";
 
 type ModelOptions = {
   site: Site;
@@ -11,6 +15,14 @@ export class OAuth2Model {
 
   constructor(ctx: IAppContext) {
     this.ctx = ctx;
+  }
+
+  generateAccessToken(): string {
+    return generateRefToken(32);
+  }
+
+  generateRefreshToken(): string {
+    return generateRefToken(64);
   }
 
   async getSite(alias: string): Promise<Site | null> {
@@ -61,5 +73,13 @@ export class OAuth2Model {
 
   async savePKCEState(pkceState: PKCEState): Promise<void> {
     this.ctx.storeCache.pkceStore.set(pkceState);
+  }
+}
+
+export abstract class IOAuth2Model {
+  protected model: OAuth2Model;
+
+  constructor(opts: { model: OAuth2Model }) {
+    this.model = opts.model;
   }
 }
