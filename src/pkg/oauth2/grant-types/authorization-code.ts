@@ -96,24 +96,28 @@ export class AuthorizationCode extends GrantType {
      *
      * @see https://www.oauth.com/oauth2-servers/access-tokens/self-encoded-access-tokens/
      */
-
     const tokenResponseParams: AccessTokenResponseParams = {
       type: "token",
       token_type: "bearer",
       access_token: this.model.generateAccessToken(),
       expires_in: this.client.access_token_lifetime,
-      // ? scope: pkceState.scope
     };
 
     /**
-     * If the initial authroization request required the 'refresh_token' scope,
-     * ensure to return the refresh token in the response
-     * * todo: pkceState.scope.has('refresh_token')
-     *   refresh_token: '',
-     *   refresh_token_expires_in: 60,
+     * If the initial authorization request required the 'refresh_token' scope,
+     * ensure to return the refresh token in the access token response
      */
-    // this.client.access_token_lifetime;
-    // this.client.refresh_token_lifetime;
+    if (typeof pkceState.scope === "string") {
+      const initialScopes = new Set(pkceState.scope.split(/\u0020/g));
+
+      if (initialScopes.has("refresh_token")) {
+        tokenResponseParams.refresh_token = this.model.generateRefreshToken();
+        tokenResponseParams.refresh_token_expires_in =
+          this.client.refresh_token_lifetime;
+      }
+
+      tokenResponseParams.scope = [...initialScopes].join(" ");
+    }
 
     const response = new OAuthResponse(request, tokenResponseParams);
     res.set(response.headers);

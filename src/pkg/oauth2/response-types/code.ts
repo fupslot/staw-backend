@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { Site, OAuth2Client } from "@prisma/client";
+import { differenceWith } from "lodash";
 
 import { OAuth2Model } from "../model";
 import { OAuthRequest } from "../request";
@@ -37,15 +38,6 @@ export class CodeResponseType implements CodeResponseParams {
   }
 
   async handle(request: OAuthRequest, res: Response): Promise<void> {
-    if (request.query.scope) {
-      if (!(await is.nqchar(request.query.scope))) {
-        throw new AuthorizationResponseError(
-          "invalid_request",
-          request.query.state
-        );
-      }
-    }
-
     if (!(await is.uri(request.query.redirect_uri))) {
       throw new AuthorizationResponseError(
         "invalid_request",
@@ -95,8 +87,43 @@ export class CodeResponseType implements CodeResponseParams {
       issued_to: this.client.client_id,
       redirect_uri: request.query.redirect_uri,
     };
-    const pkceSecret = this.client.client_secret;
 
+    /**
+     * ? SCOPE
+     *
+     * If the client omits the scope parameter when requesting
+     * authorization, the authorization server MUST process the
+     * request using a pre-defined default value.
+     * * Not implemented yet!
+     *
+     * If the client submits the scope parameter the requesting
+     * authorization, the authorization server MUST validate
+     * the requested scope values using a pre-defined scope list.
+     * * Not implemented yet!
+     *
+     * throw new AuthorizationResponseError('invalid_scope')
+     *
+     * Ideally the accepted scope values MUST be defined the the authorization server
+     */
+    const acceptedScopes = new Set(["refresh_token", "openid"]);
+
+    // ! move to the model.valueOfScope(server, client, user, { site })
+    if (request.scopes.size === 0) {
+      // * MUST apply a pre-defined default values
+    } else {
+      const scopeDiff = differenceWith(
+        [...request.scopes],
+        [...acceptedScopes]
+      );
+
+      if (scopeDiff.length > 0) {
+        throw new AuthorizationResponseError("invalid_scope");
+      }
+
+      pkceState.scope = [...request.scopes].join(" ");
+    }
+
+    const pkceSecret = this.client.client_secret;
     this.code = this.model.generateAuthorizaionCode(pkceState, pkceSecret);
 
     await this.model.savePKCEState(pkceState);

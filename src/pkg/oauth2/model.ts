@@ -18,7 +18,7 @@ export class OAuth2Model {
   }
 
   generateAccessToken(): string {
-    return generateRefToken(32);
+    return generateRefToken(48);
   }
 
   generateRefreshToken(): string {

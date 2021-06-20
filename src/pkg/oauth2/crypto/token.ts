@@ -59,6 +59,16 @@ export type PKCEState = {
   issued_to: string;
 
   redirect_uri?: string;
+
+  /**
+   * The authorization and token endpoints allow the client to specify the
+   * scope of the access request using the "scope" request parameter.  In
+   * turn, the authorization server uses the "scope" response parameter to
+   * inform the client of the scope of the access token issued.
+   *
+   * @see https://datatracker.ietf.org/doc/html/rfc6749#section-3.3
+   */
+  scope?: string;
 };
 
 export function generatePKCEChallenge(code_verifier?: string): {

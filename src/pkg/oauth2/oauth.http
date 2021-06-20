@@ -15,6 +15,7 @@
 # 
 GET http://local.example.net/oauth2/default/v1/authorize
   ?response_type=code
+  &scope=refresh_token%20openid
   &client_id=4mvrjpcvd42fwa7g1ummsxig
   &redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
   &state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN

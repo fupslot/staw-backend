@@ -28,6 +28,8 @@ type RequestBodyType = {
   client_id: string;
 
   client_secret: string;
+
+  scope?: string;
 };
 
 type RequestQueryType = {
@@ -97,7 +99,7 @@ export class OAuthRequest {
     this.params = request.params;
     this.body = request.body;
 
-    this.scopes = this.valueOfScopes(request.query.scope);
+    this.scopes = this.valueOfScopes(request);
     this.subdomain = this.valueOfSubdomain(request);
     this.authorization = this.getAuthorization(request.get("authorization"));
     this.fallback = this.getFallbackUrls(request);
@@ -152,11 +154,17 @@ export class OAuthRequest {
     return null;
   }
 
-  private valueOfScopes(scope?: string): Set<string> {
-    const scopes = new Set<string>();
+  private valueOfScopes(request: OAuthRequestType): Set<string> {
+    let scope: string | null = null;
 
-    if (typeof scope !== "string") {
-      return scopes;
+    if (typeof request.query.scope === "string") {
+      scope = request.query.scope;
+    } else if (typeof request.body.scope === "string") {
+      scope = request.body.scope;
+    }
+
+    if (scope === null) {
+      return new Set<string>();
     }
 
     /**
@@ -166,10 +174,6 @@ export class OAuthRequest {
      * [space]: "scope1+scope2"; SP unicode: \u0020
      * [+]    : "scope1 scope2"; SP unicode: \u002b
      */
-    return new Set(
-      decodeURIComponent(scope)
-        .replace(/\u0020|\u002b/g, "_")
-        .split("_")
-    );
+    return new Set(decodeURIComponent(scope).split(/\u0020/g));
   }
 }

@@ -1,5 +1,5 @@
 import Boom from "@hapi/boom";
-import { string, object, mixed } from "yup";
+import { string } from "yup";
 import ObjectSchema, { ObjectShape } from "yup/lib/object";
 
 export class is {
