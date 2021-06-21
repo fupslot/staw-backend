@@ -40,6 +40,14 @@ grant_type=authorization_code
 &code=fU7jw2tzJPackMzPkq-lPebrEli7Mq0lyGWaktPlrW4
 
 
+### example.net: 'Client credentials Grant'
+POST http://local.example.net/oauth2/default/v1/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic aTQ3aHMwOXkyeDZpZHE3NDBzNWJsM3hyOmxhMHRqMTR2dWs2dHpna2RpZTFuanVjd3V6OTUzcHcw
+
+grant_type=client_credentials
+
+
 
 ### Client Credentials Flow
 #
@@ -49,7 +57,8 @@ POST https://dev-64314946.okta.com/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials
-&scope=offline_access+application&client_id=0oaufmetwcU2RN2Ye5d6
+&scope=offline_access+application
+&client_id=0oaufmetwcU2RN2Ye5d6
 &client_secret=11LPQVnONVIh5keeIyX3yknJ18Y9MnKwzKqVkc-w
 
 
