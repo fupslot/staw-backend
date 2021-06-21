@@ -57,7 +57,12 @@ export class AuthorizationHandler extends IOAuth2Model {
         client,
       }).handle(request, res);
     } else if (responseType === "token") {
-      return new TokenResponseType({ model: this.model }).handle(request, res);
+      return new TokenResponseType({
+        state,
+        model: this.model,
+        site,
+        client,
+      }).handle(request, res);
     } else {
       throw new AuthorizationResponseError("unsupported_response_type");
     }

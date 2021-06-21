@@ -103,3 +103,14 @@ export function createAuthorizationCode(
 export function generateRefToken(size = 32): string {
   return randomString(size, UNRESERVED_CHARSET);
 }
+
+export function formatBase64(value: string): string {
+  return Buffer.from(value).toString("base64");
+}
+
+export function formatBase64url(value: string): string {
+  return formatBase64(value)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+}

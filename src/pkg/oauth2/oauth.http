@@ -17,7 +17,7 @@
 # https://datatracker.ietf.org/doc/html/rfc6749
 
 
-### OAuth2: Authorization Code + PKCE
+### example.net: 'Authorization Code + PKCE'
 # 
 GET http://local.example.net/oauth2/default/v1/authorize
   ?response_type=code
@@ -28,7 +28,7 @@ GET http://local.example.net/oauth2/default/v1/authorize
   &code_challenge=bacs7nc_Ri_ub8618ZiU7IeCTTMyuT-JQ1PYfeJvBhw
   &code_challenge_hash=S256
 
-### OAuth2: Token
+### example.net: 'Token'
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
 Authorization: Basic NG12cmpwY3ZkNDJmd2E3ZzF1bW1zeGlnOmo5cW9mZXB6anl5bnh6cHh2M2lodzYyOGt4NHMzdG11
@@ -47,6 +47,14 @@ Authorization: Basic aTQ3aHMwOXkyeDZpZHE3NDBzNWJsM3hyOmxhMHRqMTR2dWs2dHpna2RpZTF
 
 grant_type=client_credentials
 
+
+### example.net 'Implicit Grant Flow'
+GET http://local.example.net/oauth2/default/v1/authorize
+  ?response_type=token
+  &scope=refresh_token%20openid
+  &client_id=i47hs09y2x6idq740s5bl3xr
+  &redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
+  &state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
 
 
 ### Client Credentials Flow

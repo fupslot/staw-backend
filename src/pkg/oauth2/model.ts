@@ -4,11 +4,15 @@ import {
   PKCEState,
   createAuthorizationCode,
   generateRefToken,
+  formatBase64url,
+  formatBase64,
 } from "./crypto/token";
 
 type ModelOptions = {
   site: Site;
 };
+
+type OutputFormat = "bear" | "base64" | "base64url";
 
 export class OAuth2Model {
   private ctx: IAppContext;
@@ -17,7 +21,13 @@ export class OAuth2Model {
     this.ctx = ctx;
   }
 
-  generateAccessToken(): string {
+  generateAccessToken(format: OutputFormat = "bear"): string {
+    if (format === "base64url") {
+      return formatBase64url(generateRefToken(48));
+    } else if (format === "base64") {
+      return formatBase64(generateRefToken(48));
+    }
+
     return generateRefToken(48);
   }
 
