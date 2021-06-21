@@ -9,6 +9,12 @@
 # https://www.youtube.com/oktadev
 # https://oauth2simplified.com/
 # https://youtu.be/996OiexHze0
+#
+# The OAuth 2.0 Authorization Framework: Bearer Token Usage
+# https://datatracker.ietf.org/doc/html/rfc6750
+#
+# The OAuth 2.0 Authorization Framework
+# https://datatracker.ietf.org/doc/html/rfc6749
 
 
 ### OAuth2: Authorization Code + PKCE
@@ -35,7 +41,16 @@ grant_type=authorization_code
 
 
 
+### Client Credentials Flow
+#
+# Use for machine-to-machine interactions
+#
+POST https://dev-64314946.okta.com/oauth2/default/v1/token 
+Content-Type: application/x-www-form-urlencoded
 
+grant_type=client_credentials
+&scope=offline_access+application&client_id=0oaufmetwcU2RN2Ye5d6
+&client_secret=11LPQVnONVIh5keeIyX3yknJ18Y9MnKwzKqVkc-w
 
 
 
@@ -119,14 +134,7 @@ grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&clie
 
 
 
-### Client Credentials Flow
-#
-# Use for machine-to-machine interactions
-#
-POST https://dev-64314946.okta.com/oauth2/default/v1/token 
-Content-Type: application/x-www-form-urlencoded
 
-grant_type=client_credentials&scope=offline_access+application&client_id=0oaufmetwcU2RN2Ye5d6&client_secret=11LPQVnONVIh5keeIyX3yknJ18Y9MnKwzKqVkc-w
 
 
 ### OpenID 

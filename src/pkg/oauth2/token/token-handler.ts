@@ -2,9 +2,10 @@ import { Response } from "express";
 import { TokenResponseError } from "./";
 import { IOAuth2Model } from "../model";
 
-import { is } from "../../../internal";
+// import { is } from "../../../internal";
 import { OAuthRequest } from "../request";
-import { AuthorizationCode } from "../grant-types/authorization-code";
+import { AuthorizationCodeGrant } from "../grant-types/authorization-code";
+import { ClientCredentialGrant } from "../grant-types/client-credentials";
 
 export class TokenHandler extends IOAuth2Model {
   async handle(request: OAuthRequest, res: Response): Promise<void> {
@@ -24,26 +25,18 @@ export class TokenHandler extends IOAuth2Model {
       throw new TokenResponseError("invalid_request");
     }
 
-    const clientId = request.body.client_id;
-
-    if (!(await is.vschar(clientId))) {
-      throw new TokenResponseError("invalid_client");
-    }
-
-    const client = await this.model.getClient(clientId, { site });
-    if (!client) {
-      throw new TokenResponseError("invalid_client");
-    }
-
     const grantType = request.body.grant_type;
 
     if (grantType === "authorization_code") {
-      return new AuthorizationCode({ model: this.model, site, client }).handle(
-        request,
-        res
-      );
+      return new AuthorizationCodeGrant({
+        model: this.model,
+        site,
+      }).handle(request, res);
     } else if (grantType === "client_credentials") {
-      throw new TokenResponseError("unsupported_grant_type");
+      return new ClientCredentialGrant({
+        model: this.model,
+        site,
+      }).handle(request, res);
     } else if (grantType === "password") {
       throw new TokenResponseError("unsupported_grant_type");
     } else if (grantType === "refresh_token") {

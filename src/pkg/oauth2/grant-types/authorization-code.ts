@@ -5,8 +5,19 @@ import { GrantType } from "./grant-type";
 import { TokenResponseError } from "../token";
 import { is } from "../../../internal";
 
-export class AuthorizationCode extends GrantType {
+export class AuthorizationCodeGrant extends GrantType {
   async handle(request: OAuthRequest, res: Response): Promise<void> {
+    const clientId = request.body.client_id;
+
+    if (!(await is.vschar(clientId))) {
+      throw new TokenResponseError("invalid_client");
+    }
+
+    const client = await this.model.getClient(clientId, { site: this.site });
+    if (!client) {
+      throw new TokenResponseError("invalid_client");
+    }
+
     if (!(await is.vschar(request.body.code))) {
       throw new TokenResponseError(
         "invalid_request",
@@ -37,14 +48,14 @@ export class AuthorizationCode extends GrantType {
      * Ensure client authentication for confidential clients
      * Authenticate the client if client authentication is included
      */
-    if (this.client.type == "confidential") {
+    if (client.type == "confidential") {
       const auth = request.authorization;
 
       if (!auth || !auth.user || !auth.password) {
         throw new TokenResponseError("unauthorized_client");
       }
 
-      if (this.client.client_secret !== auth.password) {
+      if (client.client_secret !== auth.password) {
         throw new TokenResponseError("unauthorized_client");
       }
     }
@@ -65,13 +76,13 @@ export class AuthorizationCode extends GrantType {
       request.body.code_verifier
     );
 
-    if (!pkceState || pkceState.issued_to !== this.client.client_id) {
+    if (!pkceState || pkceState.issued_to !== client.client_id) {
       throw new TokenResponseError("invalid_request");
     }
 
     const authorizationCode = this.model.generateAuthorizaionCode(
       pkceState,
-      this.client.client_secret
+      client.client_secret
     );
 
     if (request.body.code !== authorizationCode) {
@@ -100,7 +111,7 @@ export class AuthorizationCode extends GrantType {
       type: "token",
       token_type: "bearer",
       access_token: this.model.generateAccessToken(),
-      expires_in: this.client.access_token_lifetime,
+      expires_in: client.access_token_lifetime,
     };
 
     /**
@@ -113,7 +124,7 @@ export class AuthorizationCode extends GrantType {
       if (initialScopes.has("refresh_token")) {
         tokenResponseParams.refresh_token = this.model.generateRefreshToken();
         tokenResponseParams.refresh_token_expires_in =
-          this.client.refresh_token_lifetime;
+          client.refresh_token_lifetime;
       }
 
       tokenResponseParams.scope = [...initialScopes].join(" ");

@@ -103,7 +103,7 @@ export class CodeResponseType implements CodeResponseParams {
      *
      * throw new AuthorizationResponseError('invalid_scope')
      *
-     * Ideally the accepted scope values MUST be defined the the authorization server
+     * Ideally the accepted scope values MUST be defined by the the authorization server
      */
     const acceptedScopes = new Set(["refresh_token", "openid"]);
 
