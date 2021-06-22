@@ -3,6 +3,7 @@ import { IncomingHttpHeaders } from "http";
 import { format as fmt } from "util";
 
 import { PKCECodeChallengeMethod } from "./crypto/token";
+import { TokenResponseError } from "./token";
 
 export type GrantType =
   | "authorization_code"
@@ -28,6 +29,18 @@ type RequestBodyType = {
   client_id: string;
 
   client_secret: string;
+
+  /**
+   * The resource owner username.
+   * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.3.2
+   */
+  username: string;
+
+  /**
+   * The resource owner password.
+   * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.3.2
+   */
+  password: string;
 
   scope?: string;
 };
@@ -72,8 +85,7 @@ interface FallbackURI {
 type AuthTokenTypes = "basic" | "bearer";
 type AuthToken = {
   type: AuthTokenTypes;
-  raw64?: string;
-  raw: string;
+  value: string;
   user?: string;
   password?: string;
 };
@@ -127,16 +139,15 @@ export class OAuthRequest {
     }
 
     if (authorization.startsWith("Basic")) {
+      const base64encoded = authorization.substr("Basic".length + 1);
+      const base64decoded = Buffer.from(base64encoded, "base64").toString();
+
+      const [user, password] = base64decoded.split(":");
+
       const token: AuthToken = {
         type: "basic",
-        raw64: authorization.substr("Basic".length + 1),
-        raw: Buffer.from(
-          authorization.substr("Basic".length + 1),
-          "base64"
-        ).toString(),
+        value: base64encoded,
       };
-
-      const [user, password] = token.raw.split(":");
 
       if (user && password) {
         token.user = user;
@@ -147,11 +158,40 @@ export class OAuthRequest {
     } else if (authorization.startsWith("Bearer")) {
       return {
         type: "bearer",
-        raw: authorization.substr("Bearer".length + 1),
+        value: authorization.substr("Bearer".length + 1),
       };
     }
 
     return null;
+  }
+
+  /**
+   * require client authentication for confidential clients or for any
+   * client that was issued client credentials
+   */
+  ensureBasicCredentials(): Required<AuthToken> {
+    const auth = this.authorization;
+
+    /**
+     * * There are few places where the authorization credentials are
+     * * required. Thinking about moving this part to be member of GrantType class
+     */
+    if (!auth || auth.type !== "basic" || !auth.user || !auth.password) {
+      const responseError = new TokenResponseError("invalid_client");
+      responseError.set(
+        "WWW-Authenticate",
+        'Basic realm="Client" charset="UTF-8"'
+      );
+      responseError.status = 401;
+      throw responseError;
+    }
+
+    return {
+      type: auth.type,
+      value: auth.value,
+      user: auth.user,
+      password: auth.password,
+    };
   }
 
   private valueOfScopes(request: OAuthRequestType): Set<string> {

@@ -57,9 +57,21 @@ GET http://local.example.net/oauth2/default/v1/authorize
   &state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
 
 
+### example.net: Password Flow
+#
+#
+POST http://local.example.net/oauth2/default/v1/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic NG12cmpwY3ZkNDJmd2E3ZzF1bW1zeGlnOmo5cW9mZXB6anl5bnh6cHh2M2lodzYyOGt4NHMzdG11
+
+grant_type=password
+&username=john.doe
+&password=secret
+&scope=refresh_token
+
+
 ### Client Credentials Flow
 #
-# Use for machine-to-machine interactions
 #
 POST https://dev-64314946.okta.com/oauth2/default/v1/token 
 Content-Type: application/x-www-form-urlencoded
@@ -82,7 +94,12 @@ GET https://dev-64314946.okta.com/oauth2/default/v1/authorize?response_type=code
 POST https://dev-64314946.okta.com/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&code_verifier=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c&code=6tXJvFPj4R55NlXzVAFHz8kx1inb8jQ8THQrPO1xKsc
+grant_type=authorization_code
+&redirect_uri=https://example-app.com/redirect
+&client_id=0oauaxbqu0A3sIgVe5d6
+&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j
+&code_verifier=2f6cd7c9315e6c724816a98e5d64ff120eb07e16c7a3e6bf2cab3b0c
+&code=6tXJvFPj4R55NlXzVAFHz8kx1inb8jQ8THQrPO1xKsc
 
 
 ###
@@ -125,7 +142,10 @@ grant_type=authorization_code&redirect_uri=https://example-app.com/redirect&clie
 POST https://dev-64314946.okta.com/oauth2/default/v1/token 
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=refresh_token&client_id=0oauaxbqu0A3sIgVe5d6&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j&refresh_token=kvLfUvYehF7jVVHVcQ2dMkj9N10LvtVeetjs_E-VnZo
+grant_type=refresh_token
+&client_id=0oauaxbqu0A3sIgVe5d6
+&client_secret=AZDcpmjgIxtvclZEPVfYBpsIiPcuSHljPvMwXB2j
+&refresh_token=kvLfUvYehF7jVVHVcQ2dMkj9N10LvtVeetjs_E-VnZo
 
 
 

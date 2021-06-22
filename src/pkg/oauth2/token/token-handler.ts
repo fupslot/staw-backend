@@ -6,7 +6,7 @@ import { IOAuth2Model } from "../model";
 import { OAuthRequest } from "../request";
 import { AuthorizationCodeGrant } from "../grant-types/authorization-code";
 import { ClientCredentialGrant } from "../grant-types/client-credentials";
-
+import { PasswordGrant } from "../grant-types/password-grant";
 export class TokenHandler extends IOAuth2Model {
   async handle(request: OAuthRequest, res: Response): Promise<void> {
     if (!request.subdomain) {
@@ -38,7 +38,10 @@ export class TokenHandler extends IOAuth2Model {
         site,
       }).handle(request, res);
     } else if (grantType === "password") {
-      throw new TokenResponseError("unsupported_grant_type");
+      return new PasswordGrant({ model: this.model, site }).handle(
+        request,
+        res
+      );
     } else if (grantType === "refresh_token") {
       throw new TokenResponseError("unsupported_grant_type");
     } else {

@@ -1,3 +1,5 @@
+import { Response } from "express";
+import { OAuthRequest } from "../request";
 import { Site } from "@prisma/client";
 import { OAuth2Model } from "../model";
 
@@ -14,4 +16,6 @@ export abstract class GrantType {
     this.model = opts.model;
     this.site = opts.site;
   }
+
+  abstract handle(request: OAuthRequest, res: Response): Promise<void>;
 }
