@@ -18,6 +18,15 @@ export class AuthorizationCodeGrant extends GrantType {
       throw new TokenResponseError("invalid_client");
     }
 
+    if (!client.grant_types.includes("authorization_code")) {
+      throw new TokenResponseError(
+        "unauthorized_client",
+        `The client is not authorized to use the provided grant type. Accepted grant types: [${client.grant_types.join(
+          ", "
+        )}]`
+      );
+    }
+
     if (!(await is.vschar(request.body.code))) {
       throw new TokenResponseError(
         "invalid_request",
@@ -25,36 +34,13 @@ export class AuthorizationCodeGrant extends GrantType {
       );
     }
 
-    /**
-     * require client authentication for confidential clients or for any
-     * client that was issued client credentials
-     */
-    if (
-      !request.authorization ||
-      request.authorization.type !== "basic" ||
-      !request.authorization.user ||
-      !request.authorization.password
-    ) {
-      const responseError = new TokenResponseError("invalid_client");
-      responseError.set(
-        "WWW-Authenticate",
-        'Basic realm="Client" charset="UTF-8"'
-      );
-      responseError.status = 401;
-      throw responseError;
-    }
+    const auth = request.ensureBasicCredentials();
 
     /**
      * Ensure client authentication for confidential clients
      * Authenticate the client if client authentication is included
      */
-    if (client.type == "confidential") {
-      const auth = request.authorization;
-
-      if (!auth || !auth.user || !auth.password) {
-        throw new TokenResponseError("unauthorized_client");
-      }
-
+    if (client.type === "confidential") {
       if (client.client_secret !== auth.password) {
         throw new TokenResponseError("unauthorized_client");
       }

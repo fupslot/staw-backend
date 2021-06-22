@@ -5,7 +5,6 @@ import { OAuth2Model } from "../model";
 import { OAuthRequest } from "../request";
 import { is } from "../../../internal";
 import { AuthorizationResponseError } from "../authorization";
-import { formatBase64url } from "../crypto/token";
 
 type TokenResponseTypeOptions = {
   model: OAuth2Model;

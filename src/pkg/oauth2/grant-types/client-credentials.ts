@@ -2,7 +2,7 @@ import { Response } from "express";
 import { OAuthRequest } from "../request";
 import { GrantType } from "./grant-type";
 import { TokenResponseError } from "../token/token-response-error";
-import { AccessTokenResponseParams, OAuthResponse } from "../response";
+import { AccessTokenResponseParams } from "../response";
 
 export class ClientCredentialGrant extends GrantType {
   async handle(request: OAuthRequest, res: Response): Promise<void> {
@@ -10,22 +10,7 @@ export class ClientCredentialGrant extends GrantType {
      * require client authentication for confidential clients or for any
      * client that was issued client credentials
      */
-    const auth = request.authorization;
-
-    /**
-     * * REFACTOR: There are few places where the authorization credentials are
-     * *           required. Thinking about moving this part to be member of GrantType class
-     * * const auth = this.ensureAuthorizationCredentials(request); AuthToken | throw
-     */
-    if (!auth || auth.type !== "basic" || !auth.user || !auth.password) {
-      const responseError = new TokenResponseError("invalid_client");
-      responseError.set(
-        "WWW-Authenticate",
-        'Basic realm="Client" charset="UTF-8"'
-      );
-      responseError.status = 401;
-      throw responseError;
-    }
+    const auth = request.ensureBasicCredentials();
 
     const client = await this.model.getClient(auth.user, { site: this.site });
     if (!client) {
@@ -43,20 +28,29 @@ export class ClientCredentialGrant extends GrantType {
       throw new TokenResponseError("unauthorized_client");
     }
 
+    if (!client.grant_types.includes("client_credentials")) {
+      throw new TokenResponseError(
+        "unauthorized_client",
+        `The client is not authorized to use the provided grant type. Accepted grant types: [${client.grant_types.join(
+          ", "
+        )}]`
+      );
+    }
+
     /**
      * Refresh token SHOULD NOT be included for the client credentials grant
      */
-
-    const tokenResponseParams: AccessTokenResponseParams = {
+    const resBody: AccessTokenResponseParams = {
       type: "token",
       token_type: "bearer",
       access_token: this.model.generateAccessToken(),
       expires_in: client.access_token_lifetime,
     };
 
-    const response = new OAuthResponse(request, tokenResponseParams);
-    res.set(response.headers);
-    res.json(response.body);
+    res.set("Cache-Control", "no-store");
+    res.set("Pragma", "no-cache");
+
+    res.status(200).json(resBody);
 
     return Promise.resolve();
   }

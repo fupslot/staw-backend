@@ -81,7 +81,7 @@ export class PasswordGrant extends GrantType {
     res.set("Cache-Control", "no-store");
     res.set("Pragma", "no-cache");
 
-    res.status(200).json(resBody);
+    res.status(201).json(resBody);
 
     return Promise.resolve();
   }
