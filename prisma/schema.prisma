@@ -195,6 +195,14 @@ enum ResponseType {
   token
 }
 
+enum AccessTokenDeliverMethod {
+  // Example: https://example.com/callback?access_token
+  query_component
+  
+  // Example: https://example.com/callback#access_token
+  fragment_component
+}
+
 // OAuth 2.0 Dynamic Client Registration Protocol
 // 
 // Client Metadata
@@ -240,6 +248,11 @@ model OAuth2Client {
   // Array of the OAuth 2.0 response type strings that the client can
   // use at the authorization endpoint
   response_types ResponseType[]
+
+  // Method 
+  // Relevant to 'Implicit Grant Token Response'
+  // @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
+  response_deliver_method AccessTokenDeliverMethod @default(query_component)
 
   // Human-readable string name of the client to be presented to the end-user
   // during authorization

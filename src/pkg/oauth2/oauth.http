@@ -22,7 +22,7 @@
 GET http://local.example.net/oauth2/default/v1/authorize
   ?response_type=code
   &scope=refresh_token%20openid
-  &client_id=4mvrjpcvd42fwa7g1ummsxig
+  &client_id=jgfjd1ibdbrxnvpapehl779l
   &redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
   &state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
   &code_challenge=bacs7nc_Ri_ub8618ZiU7IeCTTMyuT-JQ1PYfeJvBhw
@@ -31,30 +31,29 @@ GET http://local.example.net/oauth2/default/v1/authorize
 ### example.net: 'Token'
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic NG12cmpwY3ZkNDJmd2E3ZzF1bW1zeGlnOmo5cW9mZXB6anl5bnh6cHh2M2lodzYyOGt4NHMzdG11
+Authorization: Basic amdmamQxaWJkYnJ4bnZwYXBlaGw3NzlsOmdpNGN4MncxMzBraWZ1d20yeGtrZzBzNGZ3dnRzYzUz
 
 grant_type=authorization_code
-&client_id=4mvrjpcvd42fwa7g1ummsxig
+&client_id=jgfjd1ibdbrxnvpapehl779l
 &redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
 &code_verifier=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
-&code=fU7jw2tzJPackMzPkq-lPebrEli7Mq0lyGWaktPlrW4
-
+&code=-AFSF1lLJEX2FWku44wgiiavANLs9rdH8EakaudGIzg
 
 ### example.net: 'Client Credentials Grant'
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic NG12cmpwY3ZkNDJmd2E3ZzF1bW1zeGlnOmo5cW9mZXB6anl5bnh6cHh2M2lodzYyOGt4NHMzdG11
+Authorization: Basic amdmamQxaWJkYnJ4bnZwYXBlaGw3NzlsOmdpNGN4MncxMzBraWZ1d20yeGtrZzBzNGZ3dnRzYzUz
 
 grant_type=client_credentials
-&client_id=4mvrjpcvd42fwa7g1ummsxig
-&client_secret=j9qofepzjyynxzpxv3ihw628kx4s3tmu
+&client_id=jgfjd1ibdbrxnvpapehl779l
+&client_secret=gi4cx2w130kifuwm2xkkg0s4fwvtsc53
 &scope=refresh_t1oken
 
 ### example.net 'Implicit Grant Flow'
 GET http://local.example.net/oauth2/default/v1/authorize
   ?response_type=token
   &scope=refresh_token%20openid
-  &client_id=4mvrjpcvd42fwa7g1ummsxig
+  &client_id=jgfjd1ibdbrxnvpapehl779l
   &redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
   &state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
 
@@ -64,7 +63,7 @@ GET http://local.example.net/oauth2/default/v1/authorize
 #
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic NG12cmpwY3ZkNDJmd2E3ZzF1bW1zeGlnOmo5cW9mZXB6anl5bnh6cHh2M2lodzYyOGt4NHMzdG11
+Authorization: Basic amdmamQxaWJkYnJ4bnZwYXBlaGw3NzlsOmdpNGN4MncxMzBraWZ1d20yeGtrZzBzNGZ3dnRzYzUz
 
 grant_type=password
 &username=john.doe
