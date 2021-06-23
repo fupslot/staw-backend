@@ -15,10 +15,10 @@ import { OAuthRequest } from "./request";
 
 // GET /authorize?response_type=code  [Authorization Code Grant]
 
+// GET /authorize?response_type=token [Implicit Grant]
+
 // POST /token                        [Authorization Code Grant]
 //   grant_type=authorization_code
-
-// GET /authorize?response_type=token [Implicit Grant]
 
 // POST /token                        [Passport Grant]
 //   grant_type=passport
@@ -48,7 +48,7 @@ export class OAuth2Server {
    * @returns Promise<void>
    */
   async authorize(request: OAuthRequest, res: Response): Promise<void> {
-    return new AuthorizationHandler({ model: this.model }).handle(request, res);
+    return new AuthorizationHandler(this.model, request).handle(res);
   }
 
   /**
@@ -61,7 +61,7 @@ export class OAuth2Server {
    * @returns Promise<void>
    */
   async token(request: OAuthRequest, res: Response): Promise<void> {
-    return new TokenHandler({ model: this.model }).handle(request, res);
+    return new TokenHandler(this.model, request).handle(res);
   }
 
   /**

@@ -1,14 +1,15 @@
 import { Response } from "express";
 import { TokenResponseError } from "./";
-import { IOAuth2Model } from "../model";
 
 // import { is } from "../../../internal";
-import { OAuthRequest } from "../request";
+import { RequestHandler } from "../request";
 import { AuthorizationCodeGrant } from "../grant-types/authorization-code";
 import { ClientCredentialGrant } from "../grant-types/client-credentials";
 import { PasswordGrant } from "../grant-types/password-grant";
-export class TokenHandler extends IOAuth2Model {
-  async handle(request: OAuthRequest, res: Response): Promise<void> {
+export class TokenHandler extends RequestHandler {
+  async handle(res: Response): Promise<void> {
+    const request = this.request;
+
     if (!request.subdomain) {
       throw new TokenResponseError("invalid_client");
     }
@@ -31,15 +32,16 @@ export class TokenHandler extends IOAuth2Model {
       return new AuthorizationCodeGrant({
         model: this.model,
         site,
-      }).handle(request, res);
+        request,
+      }).handle(res);
     } else if (grantType === "client_credentials") {
       return new ClientCredentialGrant({
         model: this.model,
         site,
-      }).handle(request, res);
-    } else if (grantType === "password") {
-      return new PasswordGrant({ model: this.model, site }).handle(
         request,
+      }).handle(res);
+    } else if (grantType === "password") {
+      return new PasswordGrant({ model: this.model, site, request }).handle(
         res
       );
     } else if (grantType === "refresh_token") {

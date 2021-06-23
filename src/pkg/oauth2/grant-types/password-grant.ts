@@ -1,12 +1,11 @@
 import { Response } from "express";
 import { is } from "../../../internal";
-import { OAuthRequest } from "../request";
 import { GrantType } from "./grant-type";
 import { TokenResponseError } from "../token/token-response-error";
 import { AccessTokenResponseParams } from "../response";
 
 export class PasswordGrant extends GrantType {
-  async handle(request: OAuthRequest, res: Response): Promise<void> {
+  async handle(res: Response): Promise<void> {
     /**
      * The resource owner provides the client with its username and
      * password.
@@ -23,6 +22,7 @@ export class PasswordGrant extends GrantType {
      * the resource owner credentials, and if valid, issues an access
      * token.
      */
+    const request = this.request;
 
     if (!(await is.uchar(request.body.username))) {
       throw new TokenResponseError(
@@ -41,7 +41,7 @@ export class PasswordGrant extends GrantType {
     // * Not implemented yet!
     // * this.model.getUser(site, request.body.username, request.body.password)
 
-    const auth = request.ensureBasicCredentials();
+    const auth = request.ensureClientCredentials();
 
     const client = await this.model.getClient(auth.user, { site: this.site });
     if (!client) {
@@ -73,9 +73,11 @@ export class PasswordGrant extends GrantType {
       expires_in: client.access_token_lifetime,
     };
 
-    if (request.scopes.has("refresh_token")) {
-      resBody.refresh_token = this.model.generateRefreshToken();
-      resBody.refresh_token_expires_in = client.refresh_token_lifetime;
+    if (request.scopes.size !== 0) {
+      if (request.scopes.has("refresh_token")) {
+        resBody.refresh_token = this.model.generateRefreshToken();
+        resBody.refresh_token_expires_in = client.refresh_token_lifetime;
+      }
     }
 
     res.set("Cache-Control", "no-store");

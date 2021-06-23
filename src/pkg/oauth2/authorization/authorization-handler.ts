@@ -2,12 +2,13 @@ import { Response } from "express";
 import { AuthorizationResponseError } from "./";
 import { is } from "../../../internal";
 
-import { OAuthRequest } from "../request";
+import { RequestHandler } from "../request";
 import { CodeResponseType, TokenResponseType } from "../response-types";
-import { IOAuth2Model } from "../model";
 
-export class AuthorizationHandler extends IOAuth2Model {
-  async handle(request: OAuthRequest, res: Response): Promise<void> {
+export class AuthorizationHandler extends RequestHandler {
+  async handle(res: Response): Promise<void> {
+    const request = this.request;
+
     if (!request.subdomain) {
       throw new AuthorizationResponseError("access_denied");
     }

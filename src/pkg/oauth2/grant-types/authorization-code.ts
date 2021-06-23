@@ -1,12 +1,12 @@
 import { Response } from "express";
-import { OAuthRequest } from "../request";
 import { OAuthResponse, AccessTokenResponseParams } from "../response";
 import { GrantType } from "./grant-type";
 import { TokenResponseError } from "../token";
 import { is } from "../../../internal";
 
 export class AuthorizationCodeGrant extends GrantType {
-  async handle(request: OAuthRequest, res: Response): Promise<void> {
+  async handle(res: Response): Promise<void> {
+    const request = this.request;
     const clientId = request.body.client_id;
 
     if (!(await is.vschar(clientId))) {
@@ -34,7 +34,7 @@ export class AuthorizationCodeGrant extends GrantType {
       );
     }
 
-    const auth = request.ensureBasicCredentials();
+    const auth = request.ensureClientCredentials();
 
     /**
      * Ensure client authentication for confidential clients

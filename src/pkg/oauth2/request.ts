@@ -1,7 +1,8 @@
-import { Request } from "express";
+import { Request, Response } from "express";
 import { IncomingHttpHeaders } from "http";
 import { format as fmt } from "util";
 
+import { OAuth2Model } from "./model";
 import { PKCECodeChallengeMethod } from "./crypto/token";
 import { TokenResponseError } from "./token";
 
@@ -82,10 +83,9 @@ interface FallbackURI {
   signInUrl: string;
 }
 
-type AuthTokenTypes = "basic" | "bearer";
-type AuthToken = {
-  type: AuthTokenTypes;
-  value: string;
+type ClientCredentionMethod = "request" | "basic";
+export type AuthToken = {
+  value: string | null;
   user?: string;
   password?: string;
 };
@@ -99,7 +99,6 @@ export class OAuthRequest {
   public subdomain: string | null;
   public headers: IncomingHttpHeaders;
   public fallback: FallbackURI;
-  public authorization: AuthToken | null;
   public query: RequestQueryType;
   public params: RequestParamsType;
   public body: RequestBodyType;
@@ -113,7 +112,6 @@ export class OAuthRequest {
 
     this.scopes = this.valueOfScopes(request);
     this.subdomain = this.valueOfSubdomain(request);
-    this.authorization = this.getAuthorization(request.get("authorization"));
     this.fallback = this.getFallbackUrls(request);
   }
 
@@ -131,35 +129,41 @@ export class OAuthRequest {
     return request.subdomains.shift() || null;
   }
 
-  private getAuthorization(
-    authorization: string | undefined
-  ): AuthToken | null {
-    if (!authorization) {
-      return null;
+  private getClientCreds(method: ClientCredentionMethod): AuthToken | null {
+    if (method === "request") {
+      if (this.body.client_id && this.body.client_secret) {
+        return {
+          value: null,
+          user: this.body.client_id,
+          password: this.body.client_secret,
+        };
+      }
     }
 
-    if (authorization.startsWith("Basic")) {
-      const base64encoded = authorization.substr("Basic".length + 1);
-      const base64decoded = Buffer.from(base64encoded, "base64").toString();
+    if (method === "basic") {
+      const authorization = this.headers["authorization"];
 
-      const [user, password] = base64decoded.split(":");
-
-      const token: AuthToken = {
-        type: "basic",
-        value: base64encoded,
-      };
-
-      if (user && password) {
-        token.user = user;
-        token.password = password;
+      if (!authorization) {
+        return null;
       }
 
-      return token;
-    } else if (authorization.startsWith("Bearer")) {
-      return {
-        type: "bearer",
-        value: authorization.substr("Bearer".length + 1),
-      };
+      if (authorization.startsWith("Basic")) {
+        const base64encoded = authorization.substr("Basic".length + 1);
+        const base64decoded = Buffer.from(base64encoded, "base64").toString();
+
+        const [user, password] = base64decoded.split(":");
+
+        const token: AuthToken = {
+          value: base64encoded,
+        };
+
+        if (user && password) {
+          token.user = user;
+          token.password = password;
+        }
+
+        return token;
+      }
     }
 
     return null;
@@ -169,14 +173,14 @@ export class OAuthRequest {
    * require client authentication for confidential clients or for any
    * client that was issued client credentials
    */
-  ensureBasicCredentials(): Required<AuthToken> {
-    const auth = this.authorization;
+  ensureClientCredentials(): Required<AuthToken> {
+    let auth = this.getClientCreds("basic");
 
-    /**
-     * * There are few places where the authorization credentials are
-     * * required. Thinking about moving this part to be member of GrantType class
-     */
-    if (!auth || auth.type !== "basic" || !auth.user || !auth.password) {
+    if (!auth) {
+      auth = this.getClientCreds("request");
+    }
+
+    if (!auth || !auth.user || !auth.password) {
       const responseError = new TokenResponseError("invalid_client");
       responseError.set(
         "WWW-Authenticate",
@@ -187,7 +191,6 @@ export class OAuthRequest {
     }
 
     return {
-      type: auth.type,
       value: auth.value,
       user: auth.user,
       password: auth.password,
@@ -195,15 +198,13 @@ export class OAuthRequest {
   }
 
   private valueOfScopes(request: OAuthRequestType): Set<string> {
-    let scope: string | null = null;
+    let scope = request.body.scope;
 
-    if (typeof request.query.scope === "string") {
+    if (!scope) {
       scope = request.query.scope;
-    } else if (typeof request.body.scope === "string") {
-      scope = request.body.scope;
     }
 
-    if (scope === null) {
+    if (typeof scope !== "string" || !scope) {
       return new Set<string>();
     }
 
@@ -216,4 +217,14 @@ export class OAuthRequest {
      */
     return new Set(decodeURIComponent(scope).split(/\u0020/g));
   }
+}
+
+/**
+ * Request Handler Abstract Class
+ *
+ * This class defines the basic structure for the authorization and token requests
+ */
+export abstract class RequestHandler {
+  constructor(protected model: OAuth2Model, protected request: OAuthRequest) {}
+  abstract handle(res: Response): Promise<void>;
 }
