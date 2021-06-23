@@ -21,8 +21,8 @@
 # 
 GET http://local.example.net/oauth2/default/v1/authorize
   ?response_type=code
-  &scope=refresh_token%20openid
-  &client_id=jgfjd1ibdbrxnvpapehl779l
+  &scope=offline_access
+  &client_id=hd6zkx5wqb5a4xmc8awzw7ru
   &redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
   &state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
   &code_challenge=bacs7nc_Ri_ub8618ZiU7IeCTTMyuT-JQ1PYfeJvBhw
@@ -31,29 +31,29 @@ GET http://local.example.net/oauth2/default/v1/authorize
 ### example.net: 'Token'
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic amdmamQxaWJkYnJ4bnZwYXBlaGw3NzlsOmdpNGN4MncxMzBraWZ1d20yeGtrZzBzNGZ3dnRzYzUz
+Authorization: Basic aGQ2emt4NXdxYjVhNHhtYzhhd3p3N3J1OnFrbDgyenE1MnNqd3Jwc3JmdWZleHc1dnJzdjN0dmM2
 
 grant_type=authorization_code
-&client_id=jgfjd1ibdbrxnvpapehl779l
+&client_id=hd6zkx5wqb5a4xmc8awzw7ru
 &redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
 &code_verifier=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
-&code=-AFSF1lLJEX2FWku44wgiiavANLs9rdH8EakaudGIzg
+&code=wldo4PvfcXAdkLgy13NyyN3nDjtsArBqtnGozwsw4I0
 
 ### example.net: 'Client Credentials Grant'
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic amdmamQxaWJkYnJ4bnZwYXBlaGw3NzlsOmdpNGN4MncxMzBraWZ1d20yeGtrZzBzNGZ3dnRzYzUz
+Authorization: Basic aGQ2emt4NXdxYjVhNHhtYzhhd3p3N3J1OnFrbDgyenE1MnNqd3Jwc3JmdWZleHc1dnJzdjN0dmM2
 
 grant_type=client_credentials
-&client_id=jgfjd1ibdbrxnvpapehl779l
-&client_secret=gi4cx2w130kifuwm2xkkg0s4fwvtsc53
+&client_id=hd6zkx5wqb5a4xmc8awzw7ru
+&client_secret=qkl82zq52sjwrpsrfufexw5vrsv3tvc6
 &scope=refresh_t1oken
 
 ### example.net 'Implicit Grant Flow'
 GET http://local.example.net/oauth2/default/v1/authorize
   ?response_type=token
   &scope=refresh_token%20openid
-  &client_id=jgfjd1ibdbrxnvpapehl779l
+  &client_id=hd6zkx5wqb5a4xmc8awzw7ru
   &redirect_uri=http%3A%2F%2Flocal.dev%2Fcallback
   &state=I1Q9lIV~34RrJ0Qc.osa5aIZeltdvx6g5Y2WwOvtYeN
 
@@ -63,7 +63,7 @@ GET http://local.example.net/oauth2/default/v1/authorize
 #
 POST http://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic amdmamQxaWJkYnJ4bnZwYXBlaGw3NzlsOmdpNGN4MncxMzBraWZ1d20yeGtrZzBzNGZ3dnRzYzUz
+Authorization: Basic aGQ2emt4NXdxYjVhNHhtYzhhd3p3N3J1OnFrbDgyenE1MnNqd3Jwc3JmdWZleHc1dnJzdjN0dmM2
 
 grant_type=password
 &username=john.doe
@@ -79,7 +79,7 @@ Content-Type: application/x-www-form-urlencoded
 Authorization: Basic MG9hdWZtZXR3Y1UyUk4yWWU1ZDY6MTFMUFFWbk9OVkloNWtlZUl5WDN5a25KMThZOU1uS3d6S3FWa2Mtdw==
 
 grant_type=client_credentials
-&scope=offline_access+application
+&scope=offline_access+application+sadasdasdasdsad
 #&client_id=0oaufmetwcU2RN2Ye5d6
 #&client_secret=11LPQVnONVIh5keeIyX3yknJ18Y9MnKwzKqVkc-w
 

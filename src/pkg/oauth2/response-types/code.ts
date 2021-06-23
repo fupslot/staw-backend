@@ -1,6 +1,5 @@
 import { format as fmt } from "util";
 import { Response } from "express";
-import { differenceWith } from "lodash";
 
 import { AuthorizationResponseError } from "../authorization/authorization-response-error";
 import { ResponseType } from "./response-type";
@@ -62,39 +61,26 @@ export class CodeResponseType extends ResponseType {
     };
 
     /**
-     * ? SCOPE
-     *
      * If the client omits the scope parameter when requesting
      * authorization, the authorization server MUST process the
      * request using a pre-defined default value.
-     * * Not implemented yet!
      *
      * If the client submits the scope parameter the requesting
      * authorization, the authorization server MUST validate
      * the requested scope values using a pre-defined scope list.
-     * * Not implemented yet!
-     *
-     * throw new AuthorizationResponseError('invalid_scope')
-     *
-     * Ideally the accepted scope values MUST be defined by the the authorization server
      */
-    const acceptedScopes = new Set(["refresh_token", "openid"]);
-
-    // ! move to the model.valueOfScope(server, client, user, { site })
-    if (request.scopes.size === 0) {
-      // * MUST apply a pre-defined default values
-    } else {
-      const scopeDiff = differenceWith(
-        [...request.scopes],
-        [...acceptedScopes]
+    const acceptedScopes = this.model.valueOfScope(
+      request.scopes,
+      new Set(this.server.scopes)
+    );
+    if (!acceptedScopes) {
+      throw new AuthorizationResponseError(
+        "invalid_scope",
+        "One or more scopes are not configured for the authorization server"
       );
-
-      if (scopeDiff.length > 0) {
-        throw new AuthorizationResponseError("invalid_scope");
-      }
-
-      pkceState.scope = [...request.scopes].join(" ");
     }
+
+    pkceState.scope = [...acceptedScopes].join(" ");
 
     const pkceSecret = this.client.client_secret;
     const code = this.model.generateAuthorizaionCode(pkceState, pkceSecret);

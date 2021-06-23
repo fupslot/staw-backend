@@ -63,6 +63,7 @@ export class AuthorizationHandler extends RequestHandler {
       return new CodeResponseType({
         model: this.model,
         site,
+        server,
         client,
         request,
         state,
@@ -71,6 +72,7 @@ export class AuthorizationHandler extends RequestHandler {
       return new TokenResponseType({
         model: this.model,
         site,
+        server,
         client,
         request,
         state,
