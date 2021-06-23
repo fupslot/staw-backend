@@ -127,10 +127,35 @@ model OAuth2Server {
   
   alias String @default(cuid())
 
+  audience String
+
+  issuer_uri String
+
+  description String
+
+  scopes Scope[]
+
   site Site @relation(fields: [site_id], references:[id])
   site_id String
 
   @@index([site_id, alias])
+}
+
+model Scope {
+  id Int @id @default(autoincrement())
+
+  value String
+
+  display_name String
+
+  description String
+
+  is_default Boolean @default(false)
+
+  display_consent_screen Boolean @default(false)
+
+  oauth_server OAuth2Server @relation(fields: [oauth_server_id], references: [id])
+  oauth_server_id String
 }
 
 // @see https://datatracker.ietf.org/doc/html/rfc6749#section-2.1

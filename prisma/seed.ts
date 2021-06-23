@@ -30,6 +30,27 @@ async function main() {
     data: {
       alias: "default",
       site_id: local.id,
+      audience: "api://default",
+      issuer_uri: "http://local.example.net/oauth2/default",
+      description: "Default authorization server",
+      scopes: {
+        createMany: {
+          data: [
+            {
+              value: "offline_access",
+              is_default: true,
+              description: "This keep you signed in",
+              display_name: "Refresh token",
+            },
+            {
+              value: "openid",
+              is_default: true,
+              description: "openid",
+              display_name: "openid",
+            },
+          ],
+        },
+      },
     },
   });
 
