@@ -43,11 +43,14 @@ export class OAuth2Model {
     });
   }
 
-  async getServer(site: Site, alias: string): Promise<OAuth2Server | null> {
+  async getServer(alias: string, site: Site): Promise<OAuth2Server | null> {
     return this.ctx.store.oAuth2Server.findFirst({
       where: {
         site_id: site.id,
         alias: alias,
+      },
+      include: {
+        scopes: true,
       },
     });
   }

@@ -1,14 +1,19 @@
 import { Response } from "express";
 import { TokenResponseError } from "./";
 
-// import { is } from "../../../internal";
+import { is } from "../../../internal";
 import { RequestHandler } from "../request";
 import { AuthorizationCodeGrant } from "../grant-types/authorization-code";
 import { ClientCredentialGrant } from "../grant-types/client-credentials";
 import { PasswordGrant } from "../grant-types/password-grant";
+
 export class TokenHandler extends RequestHandler {
   async handle(res: Response): Promise<void> {
     const request = this.request;
+
+    if (!(await is.unreserved36(request.params.serverAlias))) {
+      throw new TokenResponseError("invalid_request");
+    }
 
     if (!request.subdomain) {
       throw new TokenResponseError("invalid_client");
@@ -23,6 +28,11 @@ export class TokenHandler extends RequestHandler {
 
     const site = await this.model.getSite(request.subdomain);
     if (!site) {
+      throw new TokenResponseError("invalid_request");
+    }
+
+    const server = await this.model.getServer(request.params.serverAlias, site);
+    if (!server) {
       throw new TokenResponseError("invalid_request");
     }
 

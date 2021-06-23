@@ -9,6 +9,10 @@ export class AuthorizationHandler extends RequestHandler {
   async handle(res: Response): Promise<void> {
     const request = this.request;
 
+    if (!(await is.unreserved36(request.params.serverAlias))) {
+      throw new AuthorizationResponseError("invalid_request");
+    }
+
     if (!request.subdomain) {
       throw new AuthorizationResponseError("access_denied");
     }
@@ -39,6 +43,11 @@ export class AuthorizationHandler extends RequestHandler {
     const site = await this.model.getSite(request.subdomain);
     if (!site) {
       throw new AuthorizationResponseError("access_denied", state);
+    }
+
+    const server = await this.model.getServer(request.params.serverAlias, site);
+    if (!server) {
+      throw new AuthorizationResponseError("invalid_request");
     }
 
     const client = await this.model.getClient(clientId, {

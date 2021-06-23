@@ -109,6 +109,18 @@ export class is {
   static async uri(value: string): Promise<boolean> {
     return string().required().url().isValid(value);
   }
+
+  /**
+   * Unreserved characters in lowercase, digit and "-"
+   * Matches a character in the range "a" to "z", "0" to "9" and "-" Case sensitive.
+   * @param value
+   * @returns
+   */
+  static unreserved36(value: string): Promise<boolean> {
+    const chars = /^[\u0061-\u007A\u0030-\u0039\u002D]+$/;
+
+    return string().required().matches(chars, this.message).isValid(value);
+  }
 }
 
 type ValidationResult<T> = {
