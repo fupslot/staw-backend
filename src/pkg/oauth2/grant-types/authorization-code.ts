@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { OAuthResponse, AccessTokenResponseParams } from "../response";
+import { AccessTokenResponseParams } from "../response";
 import { GrantType } from "./grant-type";
 import { TokenResponseError } from "../token";
 import { is } from "../../../internal";
@@ -93,7 +93,7 @@ export class AuthorizationCodeGrant extends GrantType {
      *
      * @see https://www.oauth.com/oauth2-servers/access-tokens/self-encoded-access-tokens/
      */
-    const tokenResponseParams: AccessTokenResponseParams = {
+    const resBody: AccessTokenResponseParams = {
       type: "token",
       token_type: "bearer",
       access_token: this.model.generateAccessToken(),
@@ -108,17 +108,17 @@ export class AuthorizationCodeGrant extends GrantType {
       const initialScopes = new Set(pkceState.scope.split(/\u0020/g));
 
       if (initialScopes.has("refresh_token")) {
-        tokenResponseParams.refresh_token = this.model.generateRefreshToken();
-        tokenResponseParams.refresh_token_expires_in =
-          client.refresh_token_lifetime;
+        resBody.refresh_token = this.model.generateRefreshToken();
+        resBody.refresh_token_expires_in = client.refresh_token_lifetime;
       }
 
-      tokenResponseParams.scope = [...initialScopes].join(" ");
+      resBody.scope = [...initialScopes].join(" ");
     }
 
-    const response = new OAuthResponse(request, tokenResponseParams);
-    res.set(response.headers);
-    res.json(response.body);
+    res.set("Cache-Control", "no-store");
+    res.set("Pragma", "no-cache");
+
+    res.status(200).json(resBody);
 
     return Promise.resolve();
   }

@@ -1,43 +1,16 @@
+import { format as fmt } from "util";
 import { Response } from "express";
-import { Site, OAuth2Client } from "@prisma/client";
 import { differenceWith } from "lodash";
 
-import { OAuth2Model } from "../model";
-import { OAuthRequest } from "../request";
-import { OAuthResponse } from "../response";
-import { CodeResponseParams } from "../response";
 import { AuthorizationResponseError } from "../authorization/authorization-response-error";
-
+import { ResponseType } from "./response-type";
 import { is } from "../../../internal";
 import { PKCEState } from "../crypto/token";
 
-type CodeResponseTypeOptions = {
-  model: OAuth2Model;
-  site: Site;
-  state: string;
-  client: OAuth2Client;
-};
+export class CodeResponseType extends ResponseType {
+  async handle(res: Response): Promise<void> {
+    const request = this.request;
 
-export class CodeResponseType implements CodeResponseParams {
-  private model: OAuth2Model;
-  private site: Site;
-  private client: OAuth2Client;
-
-  type: "code";
-  code: string;
-  state: string;
-
-  constructor(opts: CodeResponseTypeOptions) {
-    this.model = opts.model;
-    this.site = opts.site;
-    this.client = opts.client;
-
-    this.type = "code";
-    this.state = opts.state;
-    this.code = "";
-  }
-
-  async handle(request: OAuthRequest, res: Response): Promise<void> {
     if (!(await is.uri(request.query.redirect_uri))) {
       throw new AuthorizationResponseError(
         "invalid_request",
@@ -124,15 +97,23 @@ export class CodeResponseType implements CodeResponseParams {
     }
 
     const pkceSecret = this.client.client_secret;
-    this.code = this.model.generateAuthorizaionCode(pkceState, pkceSecret);
+    const code = this.model.generateAuthorizaionCode(pkceState, pkceSecret);
 
     await this.model.savePKCEState(pkceState);
 
-    const response = new OAuthResponse(request, this);
+    const redirectUri = fmt(
+      "%s?code=%s&state=%s",
+      request.query.redirect_uri,
+      code,
+      request.query.state
+    );
 
-    res.set(response.headers);
-    res.statusCode = response.status;
+    res.set("Location", redirectUri);
+    res.set("Cache-Control", "no-store");
+    res.set("Pragma", "no-cache");
 
-    res.end();
+    res.redirect(302, redirectUri);
+
+    return Promise.resolve();
   }
 }

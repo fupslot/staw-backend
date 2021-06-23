@@ -52,18 +52,20 @@ export class AuthorizationHandler extends RequestHandler {
 
     if (responseType === "code") {
       return new CodeResponseType({
-        state,
         model: this.model,
         site,
         client,
-      }).handle(request, res);
+        request,
+        state,
+      }).handle(res);
     } else if (responseType === "token") {
       return new TokenResponseType({
-        state,
         model: this.model,
         site,
         client,
-      }).handle(request, res);
+        request,
+        state,
+      }).handle(res);
     } else {
       throw new AuthorizationResponseError("unsupported_response_type");
     }

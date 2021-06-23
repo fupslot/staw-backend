@@ -1,30 +1,13 @@
 import { Response } from "express";
 import { format as fmt } from "util";
-import { Site, OAuth2Client } from "@prisma/client";
-import { OAuth2Model } from "../model";
-import { OAuthRequest } from "../request";
 import { is } from "../../../internal";
 import { AuthorizationResponseError } from "../authorization";
 
-type TokenResponseTypeOptions = {
-  model: OAuth2Model;
-  site: Site;
-  state: string;
-  client: OAuth2Client;
-};
+import { ResponseType } from "./response-type";
+export class TokenResponseType extends ResponseType {
+  async handle(res: Response): Promise<void> {
+    const request = this.request;
 
-export class TokenResponseType {
-  private model: OAuth2Model;
-  private client: OAuth2Client;
-  private site: Site;
-
-  constructor(opts: TokenResponseTypeOptions) {
-    this.model = opts.model;
-    this.client = opts.client;
-    this.site = opts.site;
-  }
-
-  async handle(request: OAuthRequest, res: Response): Promise<void> {
     if (!(await is.uri(request.query.redirect_uri))) {
       throw new AuthorizationResponseError(
         "invalid_request",
@@ -44,7 +27,6 @@ export class TokenResponseType {
 
     const accessToken = this.model.generateAccessToken("base64url");
 
-    const uriFragment = true;
     const searchParams: [string, string][] = [];
 
     searchParams.push(["token_type", "bearer"]);
@@ -56,18 +38,20 @@ export class TokenResponseType {
       searchParams.push(["scope", encodeURIComponent(request.query.scope)]);
     }
 
+    const uriComponent =
+      this.client.response_deliver_method === "fragment_component" ? "#" : "?";
+
     const redirectUri = fmt(
       "%s%s%s",
       request.query.redirect_uri,
-      uriFragment ? "#" : "?",
+      uriComponent,
       new URLSearchParams(searchParams).toString()
     );
 
     res.set("Cache-Control", "no-store");
     res.set("Pragma", "no-cache");
-    res.set("Location", redirectUri);
 
-    res.sendStatus(302);
+    res.redirect(302, redirectUri);
     return Promise.resolve();
   }
 }

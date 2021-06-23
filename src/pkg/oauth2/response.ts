@@ -1,9 +1,3 @@
-import { OutgoingHttpHeaders, OutgoingHttpHeader } from "http";
-import { format as fmt } from "util";
-
-import { OAuthRequest } from "./request";
-import { lowercase } from "../../internal";
-
 export type CodeResponseParams = {
   type: "code";
 
@@ -62,53 +56,3 @@ export type AccessTokenResponseParams = {
   // otherwise, REQUIRED.
   scope?: string;
 };
-
-export class OAuthResponse<
-  T extends CodeResponseParams | AccessTokenResponseParams
-> {
-  headers: OutgoingHttpHeaders;
-  status: number;
-  request: OAuthRequest;
-  query: CodeResponseParams | undefined;
-  body: AccessTokenResponseParams | undefined;
-
-  constructor(request: OAuthRequest, data: T) {
-    this.headers = {};
-    this.request = request;
-
-    if (data.type === "token") {
-      this.body = data as AccessTokenResponseParams;
-      this.status = 201;
-    } else if (data.type === "code") {
-      this.query = data as CodeResponseParams;
-
-      this.set(
-        "Location",
-        this.getRedirectUrl(
-          this.query.code,
-          this.query.state,
-          this.request.query.redirect_uri
-        )
-      );
-
-      this.status = 302;
-    } else {
-      this.status = 200;
-    }
-
-    this.set("Cache-Control", "no-store");
-    this.set("Pragma", "no-cache");
-  }
-
-  set(key: string, value: OutgoingHttpHeader): void {
-    this.headers[lowercase(key)] = value;
-  }
-
-  get(key: string): OutgoingHttpHeader | undefined {
-    return this.headers[lowercase(key)];
-  }
-
-  private getRedirectUrl(code: string, state: string, uri: string): string {
-    return fmt("%s?code=%s&state=%s", uri, code, state);
-  }
-}
