@@ -1,12 +1,14 @@
 import express from "express";
-import session from "express-session";
-import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
 import { IAppContext } from "../context";
+import session from "../session";
+
 // import { createApiRoute } from "../api";
 // import { subdomain } from "./middleware";
 import { errorHandler } from "./errorHandler";
 import { OAuth2 } from "../oauth2";
+import { Login } from "../login";
 
 interface HTTPServer {
   listen: (port: number, cb: () => void) => void;
@@ -23,17 +25,11 @@ export const createHttpServer = (
 
   app.set("trust proxy", true);
   // app.set('query parser', 'extended')
+  app.disable("x-powered-by");
 
-  app.use(cookieParser());
+  app.use(helmet());
 
-  app.use(
-    session({
-      name: context.config.SESSION_NAME,
-      secret: context.config.SESSION_SECRET,
-      resave: true,
-      saveUninitialized: true,
-    })
-  );
+  session.init(app, context);
 
   // Define global middlewares
   // app.use(subdomain(context));
@@ -51,11 +47,12 @@ export const createHttpServer = (
   // todo: implement API as child express application
   // app.use("/api/v1", createApiRoute(context));
 
+  app.use(Login(context));
+
   /**
-   * Initializing OAuth2 endpoints
+   * Initializing the authorization server endpoints
    */
-  const oauth2 = OAuth2(context);
-  app.use(oauth2);
+  app.use(OAuth2(context));
 
   app.use(errorHandler());
 

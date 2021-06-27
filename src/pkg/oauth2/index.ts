@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction, Express } from "express";
+import { Boom } from "@hapi/boom";
 
 import { urlencoded, x_form_www_urlencoded_required } from "./middleware";
 import { IAppContext } from "../context";
@@ -17,6 +18,13 @@ export function OAuth2(ctx: IAppContext): Express {
   const oauth2 = express();
 
   oauth2.use(urlencoded());
+  oauth2.disable("x-powered-by");
+
+  oauth2.use((req, res, next) => {
+    console.log("req.cookies", req.cookies);
+    console.log("req.session", req.session);
+    next();
+  });
 
   oauth2.get(
     "/oauth2/:serverAlias/v1/authorize",
@@ -65,6 +73,11 @@ export function OAuth2(ctx: IAppContext): Express {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (error: Error, req: Request, res: Response, next: NextFunction): void => {
       console.error(error);
+
+      if (error instanceof Boom) {
+        res.json(error);
+        return;
+      }
 
       if (error instanceof AuthorizationResponseError) {
         res.redirect(error.status, error.getRedirectUri("callback_uri"));

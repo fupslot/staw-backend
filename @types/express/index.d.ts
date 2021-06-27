@@ -22,6 +22,7 @@ type ChannelType = "stable" | "unstable";
 
 declare module "express-session" {
   interface SessionData {
-    targetChannel: ChannelType | null;
+    targetChannel?: ChannelType;
+    user?: User;
   }
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { IncomingHttpHeaders } from "http";
 import { format as fmt } from "util";
+import { Session, SessionData } from "express-session";
 
 import { OAuth2Model } from "./model";
 import { PKCECodeChallengeMethod } from "./crypto/token";
@@ -103,12 +104,14 @@ export class OAuthRequest {
   public params: RequestParamsType;
   public body: RequestBodyType;
   public scopes: Set<string>;
+  public session: Session & Partial<SessionData>;
 
   constructor(request: OAuthRequestType) {
     this.headers = request.headers;
     this.query = request.query;
     this.params = request.params;
     this.body = request.body;
+    this.session = request.session;
 
     this.scopes = this.valueOfScopes(request);
     this.subdomain = this.valueOfSubdomain(request);

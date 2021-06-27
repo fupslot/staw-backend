@@ -1,4 +1,10 @@
 ### sign-in
+POST https://local.example.net/sign-in
+Content-Type: application/x-www-form-urlencoded
+
+username=josh.doe&password=secret
+
+### sign-up
 
 POST /sign-up
 Host: example.net
