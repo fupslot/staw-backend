@@ -13,39 +13,44 @@ upstream dev_frontend {
 server {
     listen      80;
     listen      [::]:80;
-    server_name example.net;
-    
-    # security headers
-    include     example.net/security.conf;
+    server_name .example.net;
 
-    location = /sign-up {
-        if ($request_method !~ ^(GET|POST)$) {
-            return '405';
-        }
-        proxy_pass http://backend/sign-up;
-        include    example.net/proxy.conf;
+    location / {
+        return 301 https://$host$request_uri;
     }
 }
 
+
 server {
-    listen      80;
-    listen      [::]:80;
+    listen      443 ssl http2;
+    listen      [::]:443 ssl http2;
+    
     server_name *.example.net;
+
     # root        /var/api/public/build;
+
+    # TLS
+    include example.net/self-signed.conf;
+    include example.net/tls-params.conf;
     
     # security headers
-    include     example.net/security.conf;
+    include example.net/security.conf;
 
-    ###
-    # Auth
-    #
+    location = /sign-in {
+        if ($request_method !~ ^(GET|POST)$) {
+            return '405';
+        }
+        proxy_pass http://backend/sign-in;
+        include    example.net/proxy.conf;
+    }
+
     location = /invite {
         if ($arg_code = "") {
-            return 302 $scheme://$http_host/sign-in?error=invalid_invitation_code;
+            return 302 $scheme://$host/sign-in?error=invalid_invitation_code;
         }
 
         if ($request_method !~ ^(GET|POST)$) {
-            return 302 $scheme://$http_host/sign-in?error=invalid_action;
+            return 302 $scheme://$host/sign-in?error=invalid_action;
         }
         
         proxy_pass http://backend/invite/;
@@ -54,7 +59,7 @@ server {
 
     location = /invite/fail {
         if ($request_method != "GET") {
-            return 302 $scheme://$http_host/sign-in?error=invalid_action;
+            return 302 $scheme://$host/sign-in?error=invalid_action;
         }
 
         proxy_pass http://backend/invite/fail;
@@ -104,7 +109,7 @@ server {
     error_page 401 = @error401;
 
     location @error401 {
-        return 302 http://john.example.net/login?url=$scheme://$http_host$request_uri&error=$auth_resp_auth_error;
+        return 302 https://$host/login?url=$scheme://$host$request_uri&error=$auth_resp_auth_error;
     }
 
     # reverse proxy
