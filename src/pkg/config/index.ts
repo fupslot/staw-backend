@@ -4,12 +4,13 @@ export type IAppConfig = {
   DOMAIN: string;
   PORT: number;
   STORE_LOGGER: boolean;
-  CACHE_URL: string;
+  CACHE_OAUTH_STATE_URL: string;
   MAIL_APIKEY: string;
   MAIL_NOREPLY: string;
   DATABASE_URL: string;
   SESSION_NAME: string;
   SESSION_SECRET: string;
+  PKCE_AUTHORIZATION_CODE_SECRET: string;
 };
 
 export const config: IAppConfig = {
@@ -19,7 +20,8 @@ export const config: IAppConfig = {
 
   STORE_LOGGER: boolTrue.includes(process.env.STORE_LOGGER || "") || false,
 
-  CACHE_URL: process.env.CACHE_URL || "redis://rd0.example.net:6379",
+  CACHE_OAUTH_STATE_URL:
+    process.env.CACHE_OAUTH_STATE_URL || "redis://rd0.example.net:6379/1",
 
   MAIL_APIKEY:
     process.env.MAIL_APIKEY ||
@@ -54,4 +56,20 @@ export const config: IAppConfig = {
    * Session secret value use to sign & verify cookie values
    */
   SESSION_SECRET: process.env.SESSION_SECRET || "secret",
+
+  /**
+   * PKCE secret
+   */
+
+  PKCE_AUTHORIZATION_CODE_SECRET: (() => {
+    if (!process.env.PKCE_AUTHORIZATION_CODE_SECRET) {
+      console.error(
+        "Error: Missing configuration: env.PKCE_AUTHORIZATION_CODE_SECRET\n"
+      );
+      console.error("Run 'yarn pkce-sign' command to generate it");
+      process.exit(1);
+    }
+
+    return process.env.PKCE_AUTHORIZATION_CODE_SECRET;
+  })(),
 };

@@ -9,8 +9,9 @@ interface CallbackURL {
 declare global {
   namespace Express {
     interface Request {
-      siteId: string | null;
-      site: Site | null;
+      subdomain: string;
+      siteAlias: string;
+      site: Site;
       user: User | null;
       endpoint: CallbackURL;
     }
@@ -21,6 +22,7 @@ type ChannelType = "stable" | "unstable";
 
 declare module "express-session" {
   interface SessionData {
-    targetChannel: ChannelType | null;
+    targetChannel?: ChannelType;
+    user?: User;
   }
 }

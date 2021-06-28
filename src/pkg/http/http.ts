@@ -1,11 +1,14 @@
 import express from "express";
-import session from "express-session";
-import cookieParser from "cookie-parser";
+import helmet from "helmet";
+
 import { IAppContext } from "../context";
-import { createApiRoute } from "../api";
-import { subdomain } from "./middleware";
+import session from "../session";
+
+// import { createApiRoute } from "../api";
+// import { subdomain } from "./middleware";
 import { errorHandler } from "./errorHandler";
-import { createAuthRoute } from "../auth";
+import { OAuth2 } from "../oauth2";
+import { Login } from "../login";
 
 interface HTTPServer {
   listen: (port: number, cb: () => void) => void;
@@ -22,20 +25,14 @@ export const createHttpServer = (
 
   app.set("trust proxy", true);
   // app.set('query parser', 'extended')
+  app.disable("x-powered-by");
 
-  app.use(cookieParser());
+  app.use(helmet());
 
-  app.use(
-    session({
-      name: context.config.SESSION_NAME,
-      secret: context.config.SESSION_SECRET,
-      resave: true,
-      saveUninitialized: true,
-    })
-  );
+  session.init(app, context);
 
   // Define global middlewares
-  app.use(subdomain(context));
+  // app.use(subdomain(context));
 
   /**
    * GET /health
@@ -47,8 +44,15 @@ export const createHttpServer = (
    */
   app.get("/health", (req, res) => res.sendStatus(200)); // simple healthcheck
 
-  app.use("/api/v1", createApiRoute(context));
-  app.use(createAuthRoute(context));
+  // todo: implement API as child express application
+  // app.use("/api/v1", createApiRoute(context));
+
+  app.use(Login(context));
+
+  /**
+   * Initializing the authorization server endpoints
+   */
+  app.use(OAuth2(context));
 
   app.use(errorHandler());
 

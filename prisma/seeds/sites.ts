@@ -1,3 +1,7 @@
+/**
+ * DEPRICATED: 2021-06-09T15:12:31.688Z
+ */
+
 export const sites = [
   {
     display_name: "demo",

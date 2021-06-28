@@ -1,26 +1,22 @@
 import * as os from "os";
-import { RedisAsync } from "../cache";
+import { IStoreCache } from "../cache";
 import { config, IAppConfig } from "../config";
 import { worker } from "../worker";
 import { PrismaClient } from "@prisma/client";
 
 export const prisma = new PrismaClient();
 
-export interface IAppCache {
-  site: RedisAsync;
-}
-
 export interface IAppContext {
   pid: number;
   hostname: string;
   store: typeof prisma;
-  cache: IAppCache;
+  storeCache: IStoreCache;
   worker: typeof worker;
   config: IAppConfig;
 }
 
 export interface IAppContextProviders {
-  cache: IAppCache;
+  storeCache: IStoreCache;
 }
 
 export function createContext(
@@ -33,7 +29,7 @@ export function createContext(
 
     store: prisma,
 
-    cache: opts.cache,
+    storeCache: opts.storeCache,
 
     config,
 
