@@ -1,5 +1,6 @@
 import express from "express";
 import helmet from "helmet";
+import path from "path";
 
 import { IAppContext } from "../context";
 import session from "../session";
@@ -8,7 +9,8 @@ import session from "../session";
 // import { subdomain } from "./middleware";
 import { errorHandler } from "./errorHandler";
 import { OAuth2 } from "../oauth2";
-import { Login } from "../login";
+import { Auth } from "./auth";
+import { Dashboard } from "./dashboard";
 
 interface HTTPServer {
   listen: (port: number, cb: () => void) => void;
@@ -47,8 +49,8 @@ export const createHttpServer = (
   // todo: implement API as child express application
   // app.use("/api/v1", createApiRoute(context));
 
-  app.use(Login(context));
-
+  app.use(Auth(context));
+  app.use(Dashboard(context));
   /**
    * Initializing the authorization server endpoints
    */

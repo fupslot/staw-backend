@@ -1,4 +1,4 @@
-import { Site, User } from "@prisma/client";
+import { Site, User as DBUser } from "@prisma/client";
 
 interface CallbackURL {
   SIGN_IN_URL: string;
@@ -12,9 +12,12 @@ declare global {
       subdomain: string;
       siteAlias: string;
       site: Site;
-      user: User | null;
+      user: DBUser | null;
       endpoint: CallbackURL;
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface User extends DBUser {}
   }
 }
 

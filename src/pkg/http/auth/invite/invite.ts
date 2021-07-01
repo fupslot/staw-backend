@@ -5,9 +5,9 @@ import {
   subdomain_required,
   urlencoded,
   x_form_www_urlencoded_required,
-} from "../../http";
-import { validate, InviteParamsSchema } from "../../../internal/validation";
-import { wrap } from "../../../internal/util";
+} from "../..";
+import { validate, InviteParamsSchema } from "../../../../internal/validation";
+import { wrap } from "../../../../internal/util";
 
 interface InviteParams {
   code: string;

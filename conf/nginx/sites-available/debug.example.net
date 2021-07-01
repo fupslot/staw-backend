@@ -44,6 +44,14 @@ server {
         include    example.net/proxy.conf;
     }
 
+    location = /sign-up {
+        if ($request_method !~ ^(GET|POST)$) {
+            return '405';
+        }
+        proxy_pass http://backend/sign-up;
+        include    example.net/proxy.conf;
+    }
+
     location = /invite {
         if ($arg_code = "") {
             return 302 $scheme://$host/sign-in?error=invalid_invitation_code;
@@ -106,11 +114,11 @@ server {
     }
 
     # if validate returns `401 not authorized` then forward the request to the error401block
-    error_page 401 = @error401;
+    #error_page 401 = @error401;
 
-    location @error401 {
-        return 302 https://$host/login?url=$scheme://$host$request_uri&error=$auth_resp_auth_error;
-    }
+    #location @error401 {
+    #    return 302 https://$host/login?url=$scheme://$host$request_uri&error=$auth_resp_auth_error;
+    #}
 
     # reverse proxy
     location /api/ {
@@ -132,12 +140,12 @@ server {
     }
     
     # Reverse proxy to react app dev server
-    location ^~ / {
-        auth_request /validate_cookie;
-        auth_request_set $auth_resp_auth_identity $upstream_http_x_auth_identity;
-        auth_request_set $auth_resp_auth_error $upstream_http_x_auth_error;
+    location ^~ /d/ {
+        #auth_request /validate_cookie;
+        #auth_request_set $auth_resp_auth_identity $upstream_http_x_auth_identity;
+        #auth_request_set $auth_resp_auth_error $upstream_http_x_auth_error;
         
-        proxy_pass http://dev_frontend;
+        proxy_pass http://backend/d/;
         include    example.net/proxy.conf;
     }
     
