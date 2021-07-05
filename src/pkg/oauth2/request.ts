@@ -97,6 +97,7 @@ export type AuthToken = {
  * Class for handling 'authorize' and 'token' requests
  */
 export class OAuthRequest {
+  private isAuthenticated: boolean;
   public subdomain: string | null;
   public headers: IncomingHttpHeaders;
   public fallback: FallbackURI;
@@ -116,6 +117,7 @@ export class OAuthRequest {
     this.scopes = this.valueOfScopes(request);
     this.subdomain = this.valueOfSubdomain(request);
     this.fallback = this.getFallbackUrls(request);
+    this.isAuthenticated = request.isAuthenticated();
   }
 
   private getFallbackUrls(request: OAuthRequestType): FallbackURI {

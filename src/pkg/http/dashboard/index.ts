@@ -15,6 +15,10 @@ export function Dashboard(ctx: IAppContext): Express {
   d.set("view engine", "ejs");
 
   d.get("/d", (req, res) => {
+    if (req.isUnauthenticated()) {
+      return res.redirect("/sign-in");
+    }
+
     res.render("dashboard");
   });
 

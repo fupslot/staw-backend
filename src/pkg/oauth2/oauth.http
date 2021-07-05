@@ -19,7 +19,7 @@
 
 ### example.net: 'Authorization Code + PKCE'
 # 
-GET http://local.example.net/oauth2/default/v1/authorize
+GET https://local.example.net/oauth2/default/v1/authorize
   ?response_type=code
   &scope=offline_access
   &client_id=hd6zkx5wqb5a4xmc8awzw7ru
@@ -29,7 +29,7 @@ GET http://local.example.net/oauth2/default/v1/authorize
   &code_challenge_hash=S256
 
 ### example.net: 'Token'
-POST http://local.example.net/oauth2/default/v1/token
+POST https://local.example.net/oauth2/default/v1/token
 Content-Type: application/x-www-form-urlencoded
 Authorization: Basic aGQ2emt4NXdxYjVhNHhtYzhhd3p3N3J1OnFrbDgyenE1MnNqd3Jwc3JmdWZleHc1dnJzdjN0dmM2
 

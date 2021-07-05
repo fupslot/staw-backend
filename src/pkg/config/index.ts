@@ -50,7 +50,7 @@ export const config: IAppConfig = {
   /**
    * The name of the cookie to set
    */
-  SESSION_NAME: process.env.SESSION_NAME || "sessionid",
+  SESSION_NAME: process.env.SESSION_NAME || "k8px",
 
   /**
    * Session secret value use to sign & verify cookie values

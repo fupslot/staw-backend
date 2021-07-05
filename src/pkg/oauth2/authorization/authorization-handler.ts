@@ -8,6 +8,12 @@ import { CodeResponseType, TokenResponseType } from "../response-types";
 export class AuthorizationHandler extends RequestHandler {
   async handle(res: Response): Promise<void> {
     const request = this.request;
+    // todo:
+    // 1. checking that the request includes user session (session cookie)
+    // 2. validate that the user authorized to access the requested subdomain (tenant)
+    // 3. in case of the authentication failuer redirect the request to '/sign-in' endpoint.
+    //    for the better user experience the failed request endpoint could be remembered
+    //    for short period of time. the user will be redirected there after the succefull authentication
 
     if (!(await is.unreserved36(request.params.serverAlias))) {
       throw new AuthorizationResponseError("invalid_request");

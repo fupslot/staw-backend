@@ -22,6 +22,7 @@ function _initialize(app: Express, ctx: IAppContext) {
       secret: ctx.config.SESSION_SECRET,
       resave: true,
       saveUninitialized: false,
+      cookie: { httpOnly: true, secure: true, sameSite: true },
     })
   );
 
@@ -76,5 +77,4 @@ export const authenticateLocal = (): RequestHandler =>
   passport.authenticate("local", {
     successRedirect: "/d/",
     failureRedirect: "/sign-in",
-    failureFlash: true,
   });
