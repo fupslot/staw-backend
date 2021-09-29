@@ -1,0 +1,30 @@
+version: "3.7"
+services:
+  postgres:
+    container_name: storage
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+  redis:
+    container_name: cache
+    image: "redis:latest"
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    stdin_open: true
+    init: true
+    container_name: backend
+    ports:
+      - "9000:9000"
+      - "9999:9999"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      - CACHE_OAUTH_STATE_URL=redis://cache:6379/1
+      - DATABASE_URL=postgresql://postgres:postgres@storage:5432/staw
+      - PKCE_AUTHORIZATION_CODE_SECRET=KLvx7XOqw447prLKYcvf5a9GLZj4zD8p+gVW61DgePg=

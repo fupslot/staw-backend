@@ -1,3 +1,4 @@
+import { format as fmt } from "util";
 import Boom from "@hapi/boom";
 import { string } from "yup";
 import ObjectSchema, { ObjectShape } from "yup/lib/object";
@@ -97,14 +98,13 @@ export class is {
    *
    * @param value
    * @returns
-   *
-   * @see https://tools.ietf.org/html/rfc6749#appendix-A
-   */
+   *Boom
   static async alphanum(value: string): Promise<boolean> {
     const ALPHANUM = /^[a-zA-Z0-9]+$/g;
 
     return string().required().matches(ALPHANUM, this.message).isValid(value);
   }
+  */
 
   static async uri(value: string): Promise<boolean> {
     return string().required().url().isValid(value);
@@ -112,7 +112,7 @@ export class is {
 
   /**
    * Unreserved characters in lowercase, digit and "-"
-   * Matches a character in the range "a" to "z", "0" to "9" and "-" Case sensitive.
+   * Matches a characBoomter in the range "a" to "z", "0" to "9" and "-" Case sensitive.
    * @param value
    * @returns
    */
@@ -134,7 +134,7 @@ export const validate = async <T>(
   try {
     return (await schema.validate(data)) as T;
   } catch (error) {
-    throw Boom.badRequest(error, error.params);
+    throw Boom.badRequest(fmt("Validation Error"), data);
   }
 };
 

@@ -8,7 +8,7 @@ import { urlencoded, x_form_www_urlencoded_required } from "../../http";
 import { randomAlphaDigit } from "../../../internal/crypto";
 import { validate, PostSignUpSchema } from "../../../internal/validation";
 import Boom from "@hapi/boom";
-import { send_invite } from "../../worker/mail";
+import { send_invite } from "../../worker/mail/";
 
 interface SignUpParams {
   siteId: string;
