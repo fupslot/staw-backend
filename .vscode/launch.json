@@ -6,11 +6,11 @@
   "configurations": [
     {
       "name": "backend",
-      "address": "api.example.net",
+      "address": "localhost",
       "port": 9999,
       "request": "attach",
       "localRoot": "${workspaceFolder}",
-      "remoteRoot": "/var/staw-backend",
+      "remoteRoot": "/app",
       "skipFiles": [
         "<node_internals>/**"
       ],

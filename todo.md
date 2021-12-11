@@ -5,3 +5,6 @@
 - [ ] middleware that extracting siteId from the request(req.site.id)
 - [ ] add mongodb api
 - [ ] add POST /register
+
+- [ ] docker-compose: add load ballancer
+- [ ] hosts: add "example.net" to /etc/hosts

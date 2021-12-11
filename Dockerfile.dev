@@ -9,6 +9,10 @@ RUN yarn install
 
 COPY . .
 
+# Generates Prisma artifacts for Prisma Client
 RUN ./node_modules/.bin/prisma generate
+
+EXPOSE 9000
+EXPOSE 9999
 
 CMD [ "yarn", "debug" ]
