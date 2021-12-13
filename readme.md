@@ -1,3 +1,9 @@
+## References
+- [The State of OAuth (by Aaron Parecki)](https://www.youtube.com/watch?v=ELdFoIYTBL8)
+- [OAuth 2.0 Playground](https://www.oauth.com/playground/)
+- [The Nuts and Bolts of OAuth 2.0 (by Aaron Parecki)](https://www.udemy.com/course/oauth-2-simplified/)
+
+
 ## Content
 
 * [Nginx Setup](#nginx-enabled)
