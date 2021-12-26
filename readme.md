@@ -1,3 +1,13 @@
+## Initialize Database
+
+When run container for the first time we need to prepare the database,
+meaning we need to create db schema and seed it with a default data. The following command will take care of it all:
+
+```bash
+make db_init
+```
+
+
 ## References
 - [The State of OAuth (by Aaron Parecki)](https://www.youtube.com/watch?v=ELdFoIYTBL8)
 - [OAuth 2.0 Playground](https://www.oauth.com/playground/)
