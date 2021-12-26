@@ -17,12 +17,12 @@ services:
     # array). The sample below assumes your primary file is in the root of your project.
     #
     build:
-      context: . 
+      context: .devcontainer 
       dockerfile: Dockerfile.workspace
 
     volumes:
       # Update this to wherever you want VS Code to mount the folder of your project
-      - ../:/workspace:cached
+      - .:/workspace:cached
       - /workspace/node_modules
 
       # Uncomment the next line to use Docker from inside the container. See https://aka.ms/vscode-remote/samples/docker-from-docker-compose for details.
