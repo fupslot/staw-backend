@@ -20,13 +20,8 @@ export function OAuth2(ctx: IAppContext): Express {
   oauth2.use(urlencoded());
   oauth2.disable("x-powered-by");
 
-  oauth2.use((req, res, next) => {
-    console.log("req.cookies", req.cookies);
-    console.log("req.session", req.session);
-    next();
-  });
-
   oauth2.get(
+    // "/oauth2/:site/v1/authorize",
     "/oauth2/:serverAlias/v1/authorize",
     wrap<OAuthRequestType>(async (req, res) => {
       try {
