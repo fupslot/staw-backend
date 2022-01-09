@@ -1,40 +1,17 @@
-import express from "express";
+import express, { Express } from "express";
 import helmet from "helmet";
-// import path from "path";
 
 import { IAppContext } from "../context";
-import session from "../session";
-
-// import { createApiRoute } from "../api";
-// import { subdomain } from "./middleware";
 import { errorHandler } from "./errorHandler";
 import { OAuth2 } from "../oauth2";
-import { Auth } from "./auth";
-import { Dashboard } from "./dashboard";
 
-interface HTTPServer {
-  listen: (port: number, cb: () => void) => void;
-}
-
-interface HTTPServerWithContext extends HTTPServer {
-  context: IAppContext;
-}
-
-export const createHttpServer = (
-  context: IAppContext
-): HTTPServerWithContext => {
+export const createHttpServer = (context: IAppContext): Express => {
   const app = express();
 
   app.set("trust proxy", true);
-  // app.set('query parser', 'extended')
   app.disable("x-powered-by");
 
   app.use(helmet());
-
-  session.init(app, context);
-
-  // Define global middlewares
-  // app.use(subdomain(context));
 
   /**
    * GET /health
@@ -46,11 +23,6 @@ export const createHttpServer = (
    */
   app.get("/health", (req, res) => res.sendStatus(200)); // simple healthcheck
 
-  // todo: implement API as child express application
-  // app.use("/api/v1", createApiRoute(context));
-
-  app.use(Auth(context));
-  app.use(Dashboard(context));
   /**
    * Initializing the authorization server endpoints
    */
@@ -58,10 +30,5 @@ export const createHttpServer = (
 
   app.use(errorHandler());
 
-  return {
-    context,
-    listen: (port, cb) => {
-      app.listen(port, cb);
-    },
-  };
+  return app;
 };
