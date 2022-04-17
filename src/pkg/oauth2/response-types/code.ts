@@ -11,9 +11,11 @@ export class CodeResponseType extends ResponseType {
     const request = this.request;
 
     if (!(await is.uri(request.query.redirect_uri))) {
+      // todo: respond with 400 Bad Request instead of 302 Found
       throw new AuthorizationResponseError(
         "invalid_request",
-        request.query.state
+        request.query.state,
+        "redirect_uri_not_valid"
       );
     }
 
@@ -21,9 +23,11 @@ export class CodeResponseType extends ResponseType {
       !Array.isArray(this.client.redirect_uris) ||
       !this.client.redirect_uris.includes(request.query.redirect_uri)
     ) {
+      // todo: respond with 400 Bad Request instead of 302 Found
       throw new AuthorizationResponseError(
         "invalid_request",
-        request.query.state
+        request.query.state,
+        "redirect_uri_not_allowed"
       );
     }
 

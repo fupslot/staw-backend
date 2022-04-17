@@ -8,51 +8,61 @@ import { CodeResponseType, TokenResponseType } from "../response-types";
 export class AuthorizationHandler extends RequestHandler {
   async handle(res: Response): Promise<void> {
     const request = this.request;
-    // todo:
-    // 1. checking that the request includes user session (session cookie)
-    // 2. validate that the user authorized to access the requested subdomain (tenant)
-    // 3. in case of the authentication failuer redirect the request to '/sign-in' endpoint.
-    //    for the better user experience the failed request endpoint could be remembered
-    //    for short period of time. the user will be redirected there after the succefull authentication
 
     if (!(await is.unreserved36(request.params.serverAlias))) {
-      throw new AuthorizationResponseError("invalid_request");
-    }
-
-    if (!request.subdomain) {
-      throw new AuthorizationResponseError("access_denied");
-    }
-
-    if (request.query.client_secret) {
+      // todo: respond with 400 Bad Request instead of 302 Found
       throw new AuthorizationResponseError(
         "invalid_request",
         request.query.state,
-        "Ensure to avoid sending 'client_secret' via the request uri"
+        "invalid_server_alias"
+      );
+    }
+
+    if (!request.subdomain) {
+      // todo: respond with 400 Bad Request instead of 302 Found
+      throw new AuthorizationResponseError(
+        "access_denied",
+        request.query.state,
+        "subdomain_not_found"
+      );
+    }
+
+    if (request.query.client_secret) {
+      // todo: respond with 400 Bad Request instead of 302 Found
+      throw new AuthorizationResponseError(
+        "invalid_request",
+        request.query.state,
+        "client_secret_not_allowed"
       );
     }
 
     const state = request.query.state;
 
     if (!(await is.nqchar(state))) {
+      // todo: respond with 400 Bad Request instead of 302 Found
       throw new AuthorizationResponseError("invalid_request");
     }
 
     const clientId = request.query.client_id;
 
     if (!(await is.vschar(clientId))) {
+      // todo: respond with 400 Bad Request instead of 302 Found
       throw new AuthorizationResponseError(
         "invalid_request",
-        request.query.state
+        request.query.state,
+        "client_id_not_valid"
       );
     }
 
     const site = await this.model.getSite(request.subdomain);
     if (!site) {
+      // todo: respond with 400 Bad Request instead of 302 Found
       throw new AuthorizationResponseError("access_denied", state);
     }
 
     const server = await this.model.getServer(request.params.serverAlias, site);
     if (!server) {
+      // todo: respond with 400 Bad Request instead of 302 Found
       throw new AuthorizationResponseError("invalid_request");
     }
 
@@ -60,6 +70,7 @@ export class AuthorizationHandler extends RequestHandler {
       site,
     });
     if (!client) {
+      // todo: respond with 400 Bad Request instead of 302 Found
       throw new AuthorizationResponseError("access_denied", state);
     }
 
