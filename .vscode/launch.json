@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "backend",
-      "address": "backend",
+      "address": "localhost",
       "port": 9999,
       "request": "attach",
       "localRoot": "${workspaceFolder}",
