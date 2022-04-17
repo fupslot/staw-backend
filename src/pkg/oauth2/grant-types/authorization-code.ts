@@ -107,7 +107,7 @@ export class AuthorizationCodeGrant extends GrantType {
     if (typeof pkceState.scope === "string") {
       const initialScopes = new Set(pkceState.scope.split(/\u0020/g));
 
-      if (initialScopes.has("refresh_token")) {
+      if (initialScopes.has("offline_access")) {
         resBody.refresh_token = this.model.generateRefreshToken();
         resBody.refresh_token_expires_in = client.refresh_token_lifetime;
       }
