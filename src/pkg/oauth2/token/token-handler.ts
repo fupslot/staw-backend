@@ -44,20 +44,26 @@ export class TokenHandler extends RequestHandler {
         site,
         request,
       }).handle(res);
-    } else if (grantType === "client_credentials") {
+    }
+
+    if (grantType === "client_credentials") {
       return new ClientCredentialGrant({
         model: this.model,
         site,
         request,
       }).handle(res);
-    } else if (grantType === "password") {
+    }
+
+    if (grantType === "password") {
       return new PasswordGrant({ model: this.model, site, request }).handle(
         res
       );
-    } else if (grantType === "refresh_token") {
-      throw new TokenResponseError("unsupported_grant_type");
-    } else {
+    }
+
+    if (grantType === "refresh_token") {
       throw new TokenResponseError("unsupported_grant_type");
     }
+
+    throw new TokenResponseError("unsupported_grant_type");
   }
 }
