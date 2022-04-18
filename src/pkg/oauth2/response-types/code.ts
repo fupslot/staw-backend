@@ -1,20 +1,18 @@
 import { format as fmt } from "util";
 import { Response } from "express";
 
-import { AuthorizationResponseError } from "../authorization/authorization-response-error";
 import { ResponseType } from "./response-type";
 import { is } from "../../../internal";
 import { PKCEState } from "../crypto/token";
+import { HttpBadRequestError } from "../response-error";
 
 export class CodeResponseType extends ResponseType {
   async handle(res: Response): Promise<void> {
     const request = this.request;
 
     if (!(await is.uri(request.query.redirect_uri))) {
-      // todo: respond with 400 Bad Request instead of 302 Found
-      throw new AuthorizationResponseError(
+      throw new HttpBadRequestError(
         "invalid_request",
-        request.query.state,
         "redirect_uri_not_valid"
       );
     }
@@ -23,25 +21,23 @@ export class CodeResponseType extends ResponseType {
       !Array.isArray(this.client.redirect_uris) ||
       !this.client.redirect_uris.includes(request.query.redirect_uri)
     ) {
-      // todo: respond with 400 Bad Request instead of 302 Found
-      throw new AuthorizationResponseError(
+      throw new HttpBadRequestError(
         "invalid_request",
-        request.query.state,
         "redirect_uri_not_allowed"
       );
     }
 
     if (!(await is.unreserved43_128(request.query.code_challenge))) {
-      throw new AuthorizationResponseError(
+      throw new HttpBadRequestError(
         "invalid_request",
-        request.query.state
+        "code_challenge_not_valid"
       );
     }
 
     if (request.query.code_challenge_hash !== "S256") {
-      throw new AuthorizationResponseError(
+      throw new HttpBadRequestError(
         "invalid_request",
-        request.query.state
+        "code_challenge_hash_not_valid"
       );
     }
 
@@ -69,7 +65,7 @@ export class CodeResponseType extends ResponseType {
      * authorization, the authorization server MUST process the
      * request using a pre-defined default value.
      *
-     * If the client submits the scope parameter the requesting
+     * If the client submits the scope parameter that requesting
      * authorization, the authorization server MUST validate
      * the requested scope values using a pre-defined scope list.
      */
@@ -78,7 +74,7 @@ export class CodeResponseType extends ResponseType {
       new Set(this.server.scopes)
     );
     if (!acceptedScopes) {
-      throw new AuthorizationResponseError(
+      throw new HttpBadRequestError(
         "invalid_scope",
         "One or more scopes are not configured for the authorization server"
       );

@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction, Express } from "express";
-import { Boom } from "@hapi/boom";
 
 import { urlencoded, x_form_www_urlencoded_required } from "./middleware";
 import { IAppContext } from "../context";
@@ -9,6 +8,8 @@ import { OAuth2Model } from "./model";
 import { AuthorizationResponseError } from "./authorization";
 import { TokenResponseError } from "./token";
 import { OAuthRequest, OAuthRequestType } from "./request";
+import { HttpResponseError } from "./response-error";
+
 /**
  * OAuth2 Server Framework
  *
@@ -24,21 +25,12 @@ export function OAuth2(ctx: IAppContext): Express {
     // "/oauth2/:site/v1/authorize",
     "/oauth2/:serverAlias/v1/authorize",
     wrap<OAuthRequestType>(async (req, res) => {
-      try {
-        const request = new OAuthRequest(req);
+      const request = new OAuthRequest(req);
 
-        const model = new OAuth2Model(ctx);
-        const server = new OAuth2Server(model);
+      const model = new OAuth2Model(ctx);
+      const server = new OAuth2Server(model);
 
-        return await server.authorize(request, res);
-      } catch (error) {
-        if (!(error instanceof AuthorizationResponseError)) {
-          console.error(error);
-          throw new AuthorizationResponseError("access_denied");
-        }
-
-        throw error;
-      }
+      return await server.authorize(request, res);
     })
   );
 
@@ -46,31 +38,23 @@ export function OAuth2(ctx: IAppContext): Express {
     "/oauth2/:serverAlias/v1/token",
     x_form_www_urlencoded_required(),
     wrap<OAuthRequestType>(async (req, res) => {
-      try {
-        const request = new OAuthRequest(req);
+      const request = new OAuthRequest(req);
 
-        const model = new OAuth2Model(ctx);
-        const server = new OAuth2Server(model);
+      const model = new OAuth2Model(ctx);
+      const server = new OAuth2Server(model);
 
-        return await server.token(request, res);
-      } catch (error) {
-        if (!(error instanceof TokenResponseError)) {
-          console.error(error);
-          throw new TokenResponseError("invalid_request");
-        }
-
-        throw error;
-      }
+      return await server.token(request, res);
     })
   );
 
   oauth2.use(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (error: Error, req: Request, res: Response, next: NextFunction): void => {
-      console.error(error);
+      // todo: log error stack when in development mode only
+      // console.error(error.toString());
 
-      if (error instanceof Boom) {
-        res.json(error);
+      if (error instanceof HttpResponseError) {
+        res.status(error.status).json(error);
         return;
       }
 
