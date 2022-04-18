@@ -5,7 +5,6 @@ import { is } from "../../../internal";
 import { RequestHandler } from "../request";
 import { AuthorizationCodeGrant } from "../grant-types/authorization-code";
 import { ClientCredentialGrant } from "../grant-types/client-credentials";
-import { PasswordGrant } from "../grant-types/password-grant";
 
 export class TokenHandler extends RequestHandler {
   async handle(res: Response): Promise<void> {
@@ -52,12 +51,6 @@ export class TokenHandler extends RequestHandler {
         site,
         request,
       }).handle(res);
-    }
-
-    if (grantType === "password") {
-      return new PasswordGrant({ model: this.model, site, request }).handle(
-        res
-      );
     }
 
     if (grantType === "refresh_token") {
