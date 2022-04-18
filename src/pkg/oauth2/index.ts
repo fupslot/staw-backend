@@ -22,7 +22,6 @@ export function OAuth2(ctx: IAppContext): Express {
   oauth2.disable("x-powered-by");
 
   oauth2.get(
-    // "/oauth2/:site/v1/authorize",
     "/oauth2/:serverAlias/v1/authorize",
     wrap<OAuthRequestType>(async (req, res) => {
       const request = new OAuthRequest(req);
