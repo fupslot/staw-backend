@@ -37,7 +37,7 @@ async function main() {
         createMany: {
           data: [
             {
-              value: "offline_access",
+              value: "refresh_token",
               is_default: true,
               description: "This keep you signed in",
               display_name: "Refresh token",
@@ -45,7 +45,7 @@ async function main() {
             {
               value: "openid",
               is_default: true,
-              description: "openid",
+              description: "Issue OIDC token",
               display_name: "openid",
             },
           ],
