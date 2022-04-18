@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { is } from "../../../internal";
 import { RequestHandler } from "../request";
-import { CodeResponseType, TokenResponseType } from "../response-types";
+import { CodeResponseType } from "../response-types";
 import { HttpBadRequestError } from "../response-error";
 
 export class AuthorizationHandler extends RequestHandler {
@@ -56,17 +56,6 @@ export class AuthorizationHandler extends RequestHandler {
 
     if (responseType === "code") {
       return new CodeResponseType({
-        model: this.model,
-        site,
-        server,
-        client,
-        request,
-        state,
-      }).handle(res);
-    }
-
-    if (responseType === "token") {
-      return new TokenResponseType({
         model: this.model,
         site,
         server,
