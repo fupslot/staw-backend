@@ -85,7 +85,9 @@ export class AuthorizationHandler extends RequestHandler {
         request,
         state,
       }).handle(res);
-    } else if (responseType === "token") {
+    }
+
+    if (responseType === "token") {
       return new TokenResponseType({
         model: this.model,
         site,
@@ -94,8 +96,8 @@ export class AuthorizationHandler extends RequestHandler {
         request,
         state,
       }).handle(res);
-    } else {
-      throw new AuthorizationResponseError("unsupported_response_type");
     }
+
+    throw new AuthorizationResponseError("unsupported_response_type");
   }
 }
